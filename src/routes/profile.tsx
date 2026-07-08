@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Menu, Bell, Settings, ChevronRight, LogOut } from "lucide-react";
+import { Menu, Bell, Settings, ChevronRight, LogOut, Music2, Palette } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
+import { Mascot } from "@/components/usora/Mascot";
+
 
 export const Route = createFileRoute("/profile")({ component: Profile });
 

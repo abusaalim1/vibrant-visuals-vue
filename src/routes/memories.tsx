@@ -4,10 +4,31 @@ import { useState } from "react";
 import { Search, Heart } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
 
 export const Route = createFileRoute("/memories")({ component: Memories });
 
 const filters = ["All", "Favorite", "Romantic", "Funny", "Deep"] as const;
+
+const tagAccent: Record<string, { border: string; thumb: string }> = {
+  Romantic: {
+    border: "#ff6f95",
+    thumb: "linear-gradient(135deg,#ffd0dc,#ff8fb1)",
+  },
+  Funny: {
+    border: "#f4c86a",
+    thumb: "linear-gradient(135deg,#fff0c8,#f7c86b)",
+  },
+  Deep: {
+    border: "#8aa0d8",
+    thumb: "linear-gradient(135deg,#d8e1f7,#8aa0d8)",
+  },
+  Favorite: {
+    border: "#ff4d79",
+    thumb: "linear-gradient(135deg,#ffc3d4,#ff4d79)",
+  },
+};
+
 
 const groups = [
   {

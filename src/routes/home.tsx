@@ -124,25 +124,52 @@ function Home() {
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/achievements"
-            className="card-soft rounded-[22px] p-4 transition active:scale-[0.98]"
+            className="card-soft relative overflow-hidden rounded-[22px] p-4 transition active:scale-[0.98]"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255,124,163,0.28), transparent 70%)",
+              }}
+            />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
               <Trophy className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
             </div>
-            <p className="mt-3 text-[15px] font-semibold text-ink">Achievements</p>
-            <p className="text-[12px] text-muted-ink">4 of 12 unlocked</p>
+            <p className="relative mt-3 text-[15px] font-semibold text-ink">Achievements</p>
+            <p className="relative text-[12px] leading-snug text-muted-ink">
+              4 of 12 unlocked
+            </p>
+            <p className="relative mt-1 text-[10.5px] font-medium text-[color:var(--primary)]">
+              2 close to unlocking →
+            </p>
           </Link>
           <Link
             to="/gifts"
-            className="card-soft rounded-[22px] p-4 transition active:scale-[0.98]"
+            className="card-soft relative overflow-hidden rounded-[22px] p-4 transition active:scale-[0.98]"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255,124,163,0.28), transparent 70%)",
+              }}
+            />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
               <Gift className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
             </div>
-            <p className="mt-3 text-[15px] font-semibold text-ink">Gift shop</p>
-            <p className="text-[12px] text-muted-ink">Send a rose today</p>
+            <p className="relative mt-3 text-[15px] font-semibold text-ink">Gift shop</p>
+            <p className="relative text-[12px] leading-snug text-muted-ink">
+              Send a rose today
+            </p>
+            <p className="relative mt-1 text-[10.5px] font-medium text-[color:var(--primary)]">
+              6 new gifts available →
+            </p>
           </Link>
         </div>
+
       </main>
 
       <BottomNav />

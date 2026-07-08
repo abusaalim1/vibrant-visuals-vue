@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { AmbientBlobs } from "@/components/usora/Blobs";
-import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import bearPandaWelcome from "@/assets/bear-panda-welcome.png";
 
 export const Route = createFileRoute("/")({
   component: Welcome,
@@ -15,42 +15,32 @@ function Welcome() {
       <div className="relative flex flex-1 flex-col overflow-hidden bg-gradient-hero">
         <AmbientBlobs />
 
-        {/* Hero visual: two overlapping soft circles */}
+        {/* Hero visual: bear & panda welcoming */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pt-16">
-          <div className="relative mb-10 h-64 w-64">
+          <div className="relative mb-10 h-64 w-full flex items-center justify-center">
             <motion.div
-              initial={{ x: -40, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
+              aria-hidden
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-              className="absolute left-0 top-6 h-40 w-40 rounded-full"
+              className="absolute h-56 w-56 rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle at 30% 30%, #ffd8e2, #ff98b6 90%)",
-                boxShadow: "0 20px 40px -20px rgba(255,68,112,0.5)",
+                  "radial-gradient(circle at 50% 50%, rgba(255,180,200,0.55) 0%, rgba(255,200,215,0.25) 45%, transparent 72%)",
+                filter: "blur(6px)",
               }}
             />
-            <motion.div
-              initial={{ x: 40, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.9, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
-              className="absolute right-0 top-16 h-40 w-40 rounded-full mix-blend-multiply"
-              style={{
-                background:
-                  "radial-gradient(circle at 70% 30%, #ffc3d4, #ff6f95 90%)",
-                boxShadow: "0 20px 40px -20px rgba(255,68,112,0.5)",
-              }}
-            />
-            <Mascot
-              variant="left"
-              size={72}
-              className="absolute -bottom-2 left-6"
-            />
-            <Mascot
-              variant="right"
-              size={72}
-              className="absolute -bottom-2 right-6"
+            <motion.img
+              src={bearPandaWelcome}
+              alt="Bear and panda waving hello"
+              draggable={false}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
+              className="relative z-10 h-64 w-auto animate-float-bob object-contain drop-shadow-[0_12px_24px_rgba(255,120,160,0.35)]"
             />
           </div>
+
 
           <motion.h1
             initial={{ opacity: 0, y: 10 }}

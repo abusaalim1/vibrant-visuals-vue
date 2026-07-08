@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Bell, Flame, Check, ArrowRight, Gift, Trophy } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
+import { Mascot } from "@/components/usora/Mascot";
 
 export const Route = createFileRoute("/home")({ component: Home });
 
@@ -12,13 +14,18 @@ const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 function Home() {
   return (
     <PhoneShell withNav>
-      <header className="flex items-center justify-between px-6 pt-8">
-        <div>
-          <p className="text-[13px] text-muted-ink">Good morning</p>
-          <h1 className="font-display text-[30px] leading-tight text-ink">
-            Aria <span className="text-muted-ink">&</span> Kai
-          </h1>
+      <AmbientBackdrop />
+      <header className="relative flex items-center justify-between px-6 pt-8">
+        <div className="flex items-center gap-3">
+          <Mascot variant="left" size={52} />
+          <div>
+            <p className="text-[13px] text-muted-ink">Good morning</p>
+            <h1 className="font-display text-[30px] leading-tight text-ink">
+              Aria <span className="text-muted-ink">&</span> Kai
+            </h1>
+          </div>
         </div>
+
         <button
           aria-label="Notifications"
           className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white"

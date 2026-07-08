@@ -18,8 +18,10 @@ const stats = [
 function Profile() {
   return (
     <PhoneShell withNav>
-      <header className="flex items-center justify-between px-6 pt-8">
+      <AmbientBackdrop />
+      <header className="relative flex items-center justify-between px-6 pt-8">
         <button className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white">
+
           <Menu className="h-4 w-4" />
         </button>
         <span className="font-display text-[20px] text-ink">Usora</span>

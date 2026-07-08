@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Bell, Flame, Check, ArrowRight, Gift, Trophy } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
+import { Mascot } from "@/components/usora/Mascot";
 
 export const Route = createFileRoute("/home")({ component: Home });
 
@@ -12,13 +14,18 @@ const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 function Home() {
   return (
     <PhoneShell withNav>
-      <header className="flex items-center justify-between px-6 pt-8">
-        <div>
-          <p className="text-[13px] text-muted-ink">Good morning</p>
-          <h1 className="font-display text-[30px] leading-tight text-ink">
-            Aria <span className="text-muted-ink">&</span> Kai
-          </h1>
+      <AmbientBackdrop />
+      <header className="relative flex items-center justify-between px-6 pt-8">
+        <div className="flex items-center gap-3">
+          <Mascot variant="left" size={52} />
+          <div>
+            <p className="text-[13px] text-muted-ink">Good morning</p>
+            <h1 className="font-display text-[30px] leading-tight text-ink">
+              Aria <span className="text-muted-ink">&</span> Kai
+            </h1>
+          </div>
         </div>
+
         <button
           aria-label="Notifications"
           className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white"
@@ -28,15 +35,28 @@ function Home() {
         </button>
       </header>
 
-      <main className="mt-6 flex-1 space-y-4 px-6">
+      <main className="relative mt-6 flex-1 space-y-4 px-6">
         {/* Streak card */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="card-soft overflow-hidden rounded-[24px] p-5"
+          className="card-soft relative overflow-hidden rounded-[24px] p-5"
+          style={{
+            backgroundImage:
+              "radial-gradient(120% 100% at 100% 0%, rgba(255,180,200,0.28) 0%, rgba(255,255,255,0) 55%), linear-gradient(180deg, #ffffff 0%, #fff7fa 100%)",
+          }}
         >
-          <div className="flex items-start justify-between">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -left-10 -bottom-16 h-40 w-40 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,150,180,0.22), transparent 70%)",
+              filter: "blur(20px)",
+            }}
+          />
+          <div className="relative flex items-start justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-ink">
                 Current streak
@@ -50,7 +70,7 @@ function Home() {
               <Flame className="h-5 w-5 text-white" strokeWidth={2} fill="white" />
             </div>
           </div>
-          <div className="mt-5 flex items-center justify-between">
+          <div className="relative mt-5 flex items-center justify-between">
             {streakDays.map((done, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5">
                 <div
@@ -67,6 +87,7 @@ function Home() {
             ))}
           </div>
         </motion.div>
+
 
         {/* Today's question preview */}
         <motion.div
@@ -103,25 +124,52 @@ function Home() {
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/achievements"
-            className="card-soft rounded-[22px] p-4 transition active:scale-[0.98]"
+            className="card-soft relative overflow-hidden rounded-[22px] p-4 transition active:scale-[0.98]"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255,124,163,0.28), transparent 70%)",
+              }}
+            />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
               <Trophy className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
             </div>
-            <p className="mt-3 text-[15px] font-semibold text-ink">Achievements</p>
-            <p className="text-[12px] text-muted-ink">4 of 12 unlocked</p>
+            <p className="relative mt-3 text-[15px] font-semibold text-ink">Achievements</p>
+            <p className="relative text-[12px] leading-snug text-muted-ink">
+              4 of 12 unlocked
+            </p>
+            <p className="relative mt-1 text-[10.5px] font-medium text-[color:var(--primary)]">
+              2 close to unlocking →
+            </p>
           </Link>
           <Link
             to="/gifts"
-            className="card-soft rounded-[22px] p-4 transition active:scale-[0.98]"
+            className="card-soft relative overflow-hidden rounded-[22px] p-4 transition active:scale-[0.98]"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(255,124,163,0.28), transparent 70%)",
+              }}
+            />
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
               <Gift className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
             </div>
-            <p className="mt-3 text-[15px] font-semibold text-ink">Gift shop</p>
-            <p className="text-[12px] text-muted-ink">Send a rose today</p>
+            <p className="relative mt-3 text-[15px] font-semibold text-ink">Gift shop</p>
+            <p className="relative text-[12px] leading-snug text-muted-ink">
+              Send a rose today
+            </p>
+            <p className="relative mt-1 text-[10.5px] font-medium text-[color:var(--primary)]">
+              6 new gifts available →
+            </p>
           </Link>
         </div>
+
       </main>
 
       <BottomNav />

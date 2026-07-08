@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { AmbientBlobs } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import bearPandaHug from "@/assets/bear-panda-hug.png";
 
 export const Route = createFileRoute("/auth")({
   component: Auth,
@@ -89,7 +90,31 @@ function Auth() {
                 : "Create an account — invite your partner in a moment."}
             </p>
 
-            <div className="mt-8 space-y-2">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
+              className="relative mx-auto mt-5 flex h-40 w-full items-center justify-center"
+            >
+              <div
+                className="absolute inset-0 mx-auto h-40 w-40 rounded-full"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 55%, rgba(255,150,180,0.45) 0%, rgba(255,180,200,0.18) 45%, transparent 72%)",
+                  filter: "blur(6px)",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                }}
+              />
+              <img
+                src={bearPandaHug}
+                alt="Bear and panda hugging"
+                className="relative z-10 h-40 w-auto animate-float-bob object-contain drop-shadow-[0_10px_20px_rgba(255,120,160,0.35)]"
+                draggable={false}
+              />
+            </motion.div>
+
+            <div className="mt-6 space-y-2">
               <AnimatePresence mode="popLayout">
                 {mode === "signup" && (
                   <motion.div

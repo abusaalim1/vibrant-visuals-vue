@@ -5,9 +5,27 @@ import { AmbientBlobs } from "@/components/usora/Blobs";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import bearPandaWelcome from "@/assets/bear-panda-welcome.png";
 
+function Heart({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 21s-7.5-4.6-9.6-9.1C.9 8.2 3.2 4 7.1 4c2 0 3.6 1.1 4.9 3 1.3-1.9 2.9-3 4.9-3 3.9 0 6.2 4.2 4.7 7.9C19.5 16.4 12 21 12 21z"
+        fill="url(#hg)"
+      />
+      <defs>
+        <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ff9ab6" />
+          <stop offset="100%" stopColor="#ff5f89" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export const Route = createFileRoute("/")({
   component: Welcome,
 });
+
 
 function Welcome() {
   return (

@@ -81,7 +81,8 @@ function Memories() {
 
   return (
     <PhoneShell withNav>
-      <header className="px-6 pt-8">
+      <AmbientBackdrop />
+      <header className="relative px-6 pt-8">
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-ink">
           Your story
         </p>
@@ -90,8 +91,8 @@ function Memories() {
         </h1>
       </header>
 
-      <div className="mt-5 px-6">
-        <div className="flex items-center gap-2 rounded-full border border-[color:var(--hairline)] bg-white px-4 py-3">
+      <div className="relative mt-5 px-6">
+        <div className="flex items-center gap-2 rounded-full border border-[color:var(--hairline)] bg-white px-4 py-3 shadow-card">
           <Search className="h-4 w-4 text-muted-ink" />
           <input
             placeholder="Search a moment…"
@@ -100,26 +101,37 @@ function Memories() {
         </div>
       </div>
 
-      <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto px-6">
-        {filters.map((f) => {
-          const active = filter === f;
-          return (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition ${
-                active
-                  ? "bg-gradient-primary text-white shadow-cta"
-                  : "border border-[color:var(--hairline)] bg-white text-muted-ink"
-              }`}
-            >
-              {f}
-            </button>
-          );
-        })}
+      <div
+        className="relative mt-4"
+        style={{
+          WebkitMaskImage:
+            "linear-gradient(to right, black 0%, black 88%, transparent 100%)",
+          maskImage:
+            "linear-gradient(to right, black 0%, black 88%, transparent 100%)",
+        }}
+      >
+        <div className="no-scrollbar flex gap-2 overflow-x-auto px-6 pb-1">
+          {filters.map((f) => {
+            const active = filter === f;
+            return (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-[12.5px] font-semibold transition ${
+                  active
+                    ? "bg-gradient-primary text-white shadow-cta"
+                    : "border border-[color:var(--hairline)] bg-white text-muted-ink"
+                }`}
+              >
+                {f}
+              </button>
+            );
+          })}
+          <div className="w-6 shrink-0" />
+        </div>
       </div>
 
-      <div className="mt-6 space-y-6 px-6">
+      <div className="relative mt-6 space-y-6 px-6">
         {groups.map((g) => (
           <section key={g.label}>
             <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-ink">
@@ -132,58 +144,81 @@ function Memories() {
                     filter === "All" ||
                     m.tags.includes(filter as (typeof m.tags)[number]),
                 )
-                .map((m, idx) => (
-                  <motion.article
-                    key={m.day}
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="card-soft rounded-[22px] p-5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--primary)]">
-                        Day {m.day}
-                      </span>
-                      {m.tags.includes("Favorite") && (
-                        <Heart
-                          className="h-4 w-4 text-[color:var(--primary)]"
-                          fill="currentColor"
-                        />
-                      )}
-                    </div>
-                    <p className="font-display mt-2 text-[19px] leading-snug text-ink">
-                      "{m.q}"
-                    </p>
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      <div className="rounded-2xl bg-[color:var(--surface)] p-3">
-                        <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
-                          Aria
-                        </p>
-                        <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
-                          {m.aria}
-                        </p>
-                      </div>
-                      <div className="rounded-2xl bg-[color:var(--surface)] p-3">
-                        <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
-                          Kai
-                        </p>
-                        <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
-                          {m.kai}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {m.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-[color:var(--pink-soft)] px-2.5 py-0.5 text-[10.5px] font-semibold text-[color:var(--primary)]"
+                .map((m, idx) => {
+                  const primaryTag =
+                    m.tags.find((t) => t !== "Favorite") ?? m.tags[0];
+                  const accent = tagAccent[primaryTag] ?? tagAccent.Romantic;
+                  return (
+                    <motion.article
+                      key={m.day}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="card-soft relative overflow-hidden rounded-[22px] p-5 pl-6"
+                      style={{ borderLeft: `4px solid ${accent.border}` }}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--primary)]">
+                              Day {m.day}
+                            </span>
+                            {m.tags.includes("Favorite") && (
+                              <Heart
+                                className="h-4 w-4 text-[color:var(--primary)]"
+                                fill="currentColor"
+                              />
+                            )}
+                          </div>
+                          <p className="font-display mt-2 text-[19px] leading-snug text-ink">
+                            "{m.q}"
+                          </p>
+                        </div>
+                        <div
+                          aria-hidden
+                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl shadow-card"
+                          style={{ background: accent.thumb }}
                         >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </motion.article>
-                ))}
+                          <div
+                            className="absolute inset-0"
+                            style={{
+                              background:
+                                "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55), transparent 55%)",
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="rounded-2xl bg-[color:var(--surface)] p-3">
+                          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
+                            Aria
+                          </p>
+                          <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
+                            {m.aria}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl bg-[color:var(--surface)] p-3">
+                          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
+                            Kai
+                          </p>
+                          <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
+                            {m.kai}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {m.tags.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full bg-[color:var(--pink-soft)] px-2.5 py-0.5 text-[10.5px] font-semibold text-[color:var(--primary)]"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    </motion.article>
+                  );
+                })}
             </div>
           </section>
         ))}
@@ -193,3 +228,4 @@ function Memories() {
     </PhoneShell>
   );
 }
+

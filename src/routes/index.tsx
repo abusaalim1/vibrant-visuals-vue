@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { AmbientBlobs } from "@/components/usora/Blobs";
-import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import bearPandaWelcome from "@/assets/bear-panda-welcome.png";
 
 export const Route = createFileRoute("/")({
   component: Welcome,

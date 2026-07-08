@@ -5,9 +5,27 @@ import { AmbientBlobs } from "@/components/usora/Blobs";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import bearPandaWelcome from "@/assets/bear-panda-welcome.png";
 
+function Heart({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M12 21s-7.5-4.6-9.6-9.1C.9 8.2 3.2 4 7.1 4c2 0 3.6 1.1 4.9 3 1.3-1.9 2.9-3 4.9-3 3.9 0 6.2 4.2 4.7 7.9C19.5 16.4 12 21 12 21z"
+        fill="url(#hg)"
+      />
+      <defs>
+        <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ff9ab6" />
+          <stop offset="100%" stopColor="#ff5f89" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
 export const Route = createFileRoute("/")({
   component: Welcome,
 });
+
 
 function Welcome() {
   return (
@@ -17,19 +35,52 @@ function Welcome() {
 
         {/* Hero visual: bear & panda welcoming */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 pt-16">
-          <div className="relative mb-10 h-64 w-full flex items-center justify-center">
+          <div
+            className="relative mb-10 h-80 w-full flex items-center justify-center"
+            style={{
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 18%, black 82%, transparent 100%)",
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 18%, black 82%, transparent 100%)",
+            }}
+          >
             <motion.div
               aria-hidden
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 0.9, ease: [0.2, 0.8, 0.2, 1] }}
-              className="absolute h-56 w-56 rounded-full"
+              className="absolute h-72 w-72 rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 50%, rgba(255,180,200,0.55) 0%, rgba(255,200,215,0.25) 45%, transparent 72%)",
-                filter: "blur(6px)",
+                  "radial-gradient(circle at 50% 50%, rgba(255,150,180,0.55) 0%, rgba(255,200,215,0.25) 45%, transparent 72%)",
+                filter: "blur(8px)",
               }}
             />
+
+            {/* Floating side hearts */}
+            {[
+              { side: "left", top: "8%", size: 22, delay: 0.2, x: -6 },
+              { side: "left", top: "60%", size: 16, delay: 0.9, x: -10 },
+              { side: "right", top: "14%", size: 20, delay: 0.5, x: 6 },
+              { side: "right", top: "55%", size: 26, delay: 1.1, x: 10 },
+            ].map((h, i) => (
+              <motion.div
+                key={i}
+                aria-hidden
+                initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                animate={{ opacity: [0, 1, 0.9, 0], y: [-4, -22, -34, -48], scale: [0.6, 1, 1, 0.8] }}
+                transition={{ duration: 3.6, delay: h.delay, repeat: Infinity, ease: "easeOut" }}
+                className="absolute"
+                style={{
+                  top: h.top,
+                  [h.side]: "6%",
+                  transform: `translateX(${h.x}px)`,
+                }}
+              >
+                <Heart size={h.size} />
+              </motion.div>
+            ))}
+
             <motion.img
               src={bearPandaWelcome}
               alt="Bear and panda waving hello"
@@ -37,9 +88,10 @@ function Welcome() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.15, ease: [0.2, 0.8, 0.2, 1] }}
-              className="relative z-10 h-64 w-auto animate-float-bob object-contain drop-shadow-[0_12px_24px_rgba(255,120,160,0.35)]"
+              className="relative z-10 h-80 w-auto animate-float-bob object-contain drop-shadow-[0_18px_28px_rgba(255,120,160,0.4)]"
             />
           </div>
+
 
 
           <motion.h1

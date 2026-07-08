@@ -22,6 +22,14 @@ function Heart({ size = 20 }: { size?: number }) {
   );
 }
 
+function Sparkle({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M12 2l1.8 6.4L20 10l-6.2 1.6L12 18l-1.8-6.4L4 10l6.2-1.6L12 2z" fill="#fff" opacity="0.95" />
+    </svg>
+  );
+}
+
 export const Route = createFileRoute("/")({
   component: Welcome,
 });

@@ -37,3 +37,49 @@ export function AmbientBlobs() {
     </div>
   );
 }
+
+/** Softer, page-wide backdrop for content screens (Home, Memories, etc.) */
+export function AmbientBackdrop() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+    >
+      <div
+        className="ambient-blob animate-drift"
+        style={{
+          width: 360,
+          height: 360,
+          top: -140,
+          right: -120,
+          background: "radial-gradient(circle, #ffc6d6 0%, transparent 70%)",
+          opacity: 0.55,
+        }}
+      />
+      <div
+        className="ambient-blob animate-drift"
+        style={{
+          width: 300,
+          height: 300,
+          top: "38%",
+          left: -140,
+          background: "radial-gradient(circle, #ffd8e4 0%, transparent 70%)",
+          opacity: 0.5,
+          animationDelay: "-4s",
+        }}
+      />
+      <div
+        className="ambient-blob animate-drift"
+        style={{
+          width: 340,
+          height: 340,
+          bottom: -160,
+          right: -120,
+          background: "radial-gradient(circle, #ffb9cd 0%, transparent 70%)",
+          opacity: 0.45,
+          animationDelay: "-8s",
+        }}
+      />
+    </div>
+  );
+}

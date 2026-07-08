@@ -9,8 +9,62 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RevealRouteImport } from './routes/reveal'
+import { Route as QuestionRouteImport } from './routes/question'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MemoriesRouteImport } from './routes/memories'
+import { Route as InviteRouteImport } from './routes/invite'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as GiftsRouteImport } from './routes/gifts'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as IndexRouteImport } from './routes/index'
 
+const RevealRoute = RevealRouteImport.update({
+  id: '/reveal',
+  path: '/reveal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuestionRoute = QuestionRouteImport.update({
+  id: '/question',
+  path: '/question',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MemoriesRoute = MemoriesRouteImport.update({
+  id: '/memories',
+  path: '/memories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteRoute = InviteRouteImport.update({
+  id: '/invite',
+  path: '/invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiftsRoute = GiftsRouteImport.update({
+  id: '/gifts',
+  path: '/gifts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +73,158 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/auth': typeof AuthRoute
+  '/gifts': typeof GiftsRoute
+  '/home': typeof HomeRoute
+  '/invite': typeof InviteRoute
+  '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
+  '/question': typeof QuestionRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/auth': typeof AuthRoute
+  '/gifts': typeof GiftsRoute
+  '/home': typeof HomeRoute
+  '/invite': typeof InviteRoute
+  '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
+  '/question': typeof QuestionRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/achievements': typeof AchievementsRoute
+  '/auth': typeof AuthRoute
+  '/gifts': typeof GiftsRoute
+  '/home': typeof HomeRoute
+  '/invite': typeof InviteRoute
+  '/memories': typeof MemoriesRoute
+  '/profile': typeof ProfileRoute
+  '/question': typeof QuestionRoute
+  '/reveal': typeof RevealRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/achievements'
+    | '/auth'
+    | '/gifts'
+    | '/home'
+    | '/invite'
+    | '/memories'
+    | '/profile'
+    | '/question'
+    | '/reveal'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/achievements'
+    | '/auth'
+    | '/gifts'
+    | '/home'
+    | '/invite'
+    | '/memories'
+    | '/profile'
+    | '/question'
+    | '/reveal'
+  id:
+    | '__root__'
+    | '/'
+    | '/achievements'
+    | '/auth'
+    | '/gifts'
+    | '/home'
+    | '/invite'
+    | '/memories'
+    | '/profile'
+    | '/question'
+    | '/reveal'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AchievementsRoute: typeof AchievementsRoute
+  AuthRoute: typeof AuthRoute
+  GiftsRoute: typeof GiftsRoute
+  HomeRoute: typeof HomeRoute
+  InviteRoute: typeof InviteRoute
+  MemoriesRoute: typeof MemoriesRoute
+  ProfileRoute: typeof ProfileRoute
+  QuestionRoute: typeof QuestionRoute
+  RevealRoute: typeof RevealRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reveal': {
+      id: '/reveal'
+      path: '/reveal'
+      fullPath: '/reveal'
+      preLoaderRoute: typeof RevealRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/question': {
+      id: '/question'
+      path: '/question'
+      fullPath: '/question'
+      preLoaderRoute: typeof QuestionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/memories': {
+      id: '/memories'
+      path: '/memories'
+      fullPath: '/memories'
+      preLoaderRoute: typeof MemoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite': {
+      id: '/invite'
+      path: '/invite'
+      fullPath: '/invite'
+      preLoaderRoute: typeof InviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gifts': {
+      id: '/gifts'
+      path: '/gifts'
+      fullPath: '/gifts'
+      preLoaderRoute: typeof GiftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +237,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AchievementsRoute: AchievementsRoute,
+  AuthRoute: AuthRoute,
+  GiftsRoute: GiftsRoute,
+  HomeRoute: HomeRoute,
+  InviteRoute: InviteRoute,
+  MemoriesRoute: MemoriesRoute,
+  ProfileRoute: ProfileRoute,
+  QuestionRoute: QuestionRoute,
+  RevealRoute: RevealRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

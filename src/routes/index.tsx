@@ -22,6 +22,14 @@ function Heart({ size = 20 }: { size?: number }) {
   );
 }
 
+function Sparkle({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path d="M12 2l1.8 6.4L20 10l-6.2 1.6L12 18l-1.8-6.4L4 10l6.2-1.6L12 2z" fill="#fff" opacity="0.95" />
+    </svg>
+  );
+}
+
 export const Route = createFileRoute("/")({
   component: Welcome,
 });
@@ -78,6 +86,26 @@ function Welcome() {
                 }}
               >
                 <Heart size={h.size} />
+              </motion.div>
+            ))}
+
+            {/* Sparkles */}
+            {[
+              { top: "12%", left: "18%", size: 12, delay: 0 },
+              { top: "24%", right: "16%", size: 10, delay: 0.6 },
+              { top: "68%", left: "12%", size: 14, delay: 1.2 },
+              { top: "72%", right: "14%", size: 11, delay: 0.3 },
+            ].map((s, i) => (
+              <motion.div
+                key={`s-${i}`}
+                aria-hidden
+                initial={{ opacity: 0, scale: 0.4 }}
+                animate={{ opacity: [0, 1, 0], scale: [0.4, 1.1, 0.5], rotate: [0, 25, 0] }}
+                transition={{ duration: 2.6, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute drop-shadow-[0_2px_4px_rgba(255,120,160,0.6)]"
+                style={{ top: s.top, left: s.left, right: s.right }}
+              >
+                <Sparkle size={s.size} />
               </motion.div>
             ))}
 

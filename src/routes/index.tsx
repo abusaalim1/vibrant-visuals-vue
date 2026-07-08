@@ -89,6 +89,26 @@ function Welcome() {
               </motion.div>
             ))}
 
+            {/* Sparkles */}
+            {[
+              { top: "12%", left: "18%", size: 12, delay: 0 },
+              { top: "24%", right: "16%", size: 10, delay: 0.6 },
+              { top: "68%", left: "12%", size: 14, delay: 1.2 },
+              { top: "72%", right: "14%", size: 11, delay: 0.3 },
+            ].map((s, i) => (
+              <motion.div
+                key={`s-${i}`}
+                aria-hidden
+                initial={{ opacity: 0, scale: 0.4 }}
+                animate={{ opacity: [0, 1, 0], scale: [0.4, 1.1, 0.5], rotate: [0, 25, 0] }}
+                transition={{ duration: 2.6, delay: s.delay, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute drop-shadow-[0_2px_4px_rgba(255,120,160,0.6)]"
+                style={{ top: s.top, left: s.left, right: s.right }}
+              >
+                <Sparkle size={s.size} />
+              </motion.div>
+            ))}
+
             <motion.img
               src={bearPandaWelcome}
               alt="Bear and panda waving hello"

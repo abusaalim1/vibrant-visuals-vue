@@ -35,15 +35,28 @@ function Home() {
         </button>
       </header>
 
-      <main className="mt-6 flex-1 space-y-4 px-6">
+      <main className="relative mt-6 flex-1 space-y-4 px-6">
         {/* Streak card */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="card-soft overflow-hidden rounded-[24px] p-5"
+          className="card-soft relative overflow-hidden rounded-[24px] p-5"
+          style={{
+            backgroundImage:
+              "radial-gradient(120% 100% at 100% 0%, rgba(255,180,200,0.28) 0%, rgba(255,255,255,0) 55%), linear-gradient(180deg, #ffffff 0%, #fff7fa 100%)",
+          }}
         >
-          <div className="flex items-start justify-between">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -left-10 -bottom-16 h-40 w-40 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(255,150,180,0.22), transparent 70%)",
+              filter: "blur(20px)",
+            }}
+          />
+          <div className="relative flex items-start justify-between">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-ink">
                 Current streak
@@ -57,7 +70,7 @@ function Home() {
               <Flame className="h-5 w-5 text-white" strokeWidth={2} fill="white" />
             </div>
           </div>
-          <div className="mt-5 flex items-center justify-between">
+          <div className="relative mt-5 flex items-center justify-between">
             {streakDays.map((done, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5">
                 <div
@@ -74,6 +87,7 @@ function Home() {
             ))}
           </div>
         </motion.div>
+
 
         {/* Today's question preview */}
         <motion.div

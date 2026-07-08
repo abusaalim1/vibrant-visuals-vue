@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
 
 export const Route = createFileRoute("/achievements")({ component: Achievements });
 

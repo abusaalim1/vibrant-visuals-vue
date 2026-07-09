@@ -1,10 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Sparkles, BookHeart, User } from "lucide-react";
+import { Home, MessageCircleHeart, BookHeart, User } from "lucide-react";
 import { motion } from "framer-motion";
 
 const tabs = [
   { to: "/home", label: "Home", icon: Home },
-  { to: "/achievements", label: "Questions", icon: Sparkles },
+  { to: "/question", label: "Questions", icon: MessageCircleHeart },
   { to: "/memories", label: "Memories", icon: BookHeart },
   { to: "/profile", label: "Profile", icon: User },
 ] as const;

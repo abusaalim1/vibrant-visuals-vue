@@ -1,16 +1,25 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { ArrowLeft, Flower2, Mail, Music, Mic, Heart } from "lucide-react";
+import { ArrowLeft, Flower2, Mail, Music, Mic, Heart, Gift, Star, Cake, Coffee, Camera, Sparkles } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
 
 export const Route = createFileRoute("/gifts")({ component: Gifts });
 
 const gifts = [
   { name: "Rose", price: "Free", icon: Flower2 },
-  { name: "Love Letter", price: "40 ✦", icon: Mail },
-  { name: "Playlist Card", price: "80 ✦", icon: Music },
-  { name: "Voice Note", price: "60 ✦", icon: Mic },
+  { name: "Love Letter", price: "₹19", icon: Mail },
+  { name: "Playlist Card", price: "₹29", icon: Music },
+  { name: "Voice Note", price: "₹39", icon: Mic },
+  { name: "Surprise Box", price: "₹49", icon: Gift },
+  { name: "Chai Date", price: "₹59", icon: Coffee },
+  { name: "Star Wish", price: "₹69", icon: Star },
+  { name: "Sweet Cake", price: "₹79", icon: Cake },
+  { name: "Photo Frame", price: "₹89", icon: Camera },
+  { name: "Sparkle Note", price: "₹99", icon: Sparkles },
+  { name: "More soon", price: "Coming", icon: Heart, disabled: true },
+  { name: "More soon", price: "Coming", icon: Heart, disabled: true },
 ];
 
 function Gifts() {
@@ -19,6 +28,7 @@ function Gifts() {
 
   return (
     <PhoneShell>
+      <AmbientBackdrop />
       <header className="flex items-center justify-between px-6 pt-8">
         <button
           onClick={() => nav({ to: "/home" })}
@@ -39,22 +49,24 @@ function Gifts() {
         </p>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 px-6">
+      <div className="relative mt-6 grid grid-cols-2 gap-3 px-6 pb-10">
         {gifts.map((g, i) => {
           const Icon = g.icon;
           return (
             <motion.button
-              key={g.name}
+              key={i}
+              disabled={g.disabled}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.97 }}
+              transition={{ delay: i * 0.04 }}
+              whileHover={g.disabled ? {} : { y: -3 }}
+              whileTap={g.disabled ? {} : { scale: 0.97 }}
               onClick={() => {
+                if (g.disabled) return;
                 setSent(g.name);
                 setTimeout(() => setSent(null), 1800);
               }}
-              className="card-soft group rounded-[22px] p-4 text-left transition-shadow hover:shadow-float"
+              className={`card-soft group rounded-[22px] p-4 text-left transition-shadow hover:shadow-float ${g.disabled ? "opacity-50" : ""}`}
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:var(--pink-soft)]">
                 <Icon className="h-6 w-6 text-[color:var(--primary)]" strokeWidth={1.75} />

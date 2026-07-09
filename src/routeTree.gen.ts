@@ -9,17 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RevealRouteImport } from './routes/reveal'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as MemoriesRouteImport } from './routes/memories'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RevealRoute = RevealRouteImport.update({
   id: '/reveal',
   path: '/reveal',
@@ -33,6 +39,11 @@ const QuestionRoute = QuestionRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistRoute = PlaylistRouteImport.update({
+  id: '/playlist',
+  path: '/playlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MemoriesRoute = MemoriesRouteImport.update({
@@ -60,11 +71,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AchievementsRoute = AchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -73,95 +79,109 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
   '/reveal': typeof RevealRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
   '/reveal': typeof RevealRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
   '/reveal': typeof RevealRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
     | '/invite'
     | '/memories'
+    | '/playlist'
     | '/profile'
     | '/question'
     | '/reveal'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
     | '/invite'
     | '/memories'
+    | '/playlist'
     | '/profile'
     | '/question'
     | '/reveal'
+    | '/settings'
   id:
     | '__root__'
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
     | '/invite'
     | '/memories'
+    | '/playlist'
     | '/profile'
     | '/question'
     | '/reveal'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AchievementsRoute: typeof AchievementsRoute
   AuthRoute: typeof AuthRoute
   GiftsRoute: typeof GiftsRoute
   HomeRoute: typeof HomeRoute
   InviteRoute: typeof InviteRoute
   MemoriesRoute: typeof MemoriesRoute
+  PlaylistRoute: typeof PlaylistRoute
   ProfileRoute: typeof ProfileRoute
   QuestionRoute: typeof QuestionRoute
   RevealRoute: typeof RevealRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reveal': {
       id: '/reveal'
       path: '/reveal'
@@ -181,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlist': {
+      id: '/playlist'
+      path: '/playlist'
+      fullPath: '/playlist'
+      preLoaderRoute: typeof PlaylistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/memories': {
@@ -218,13 +245,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/achievements': {
-      id: '/achievements'
-      path: '/achievements'
-      fullPath: '/achievements'
-      preLoaderRoute: typeof AchievementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -237,15 +257,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AchievementsRoute: AchievementsRoute,
   AuthRoute: AuthRoute,
   GiftsRoute: GiftsRoute,
   HomeRoute: HomeRoute,
   InviteRoute: InviteRoute,
   MemoriesRoute: MemoriesRoute,
+  PlaylistRoute: PlaylistRoute,
   ProfileRoute: ProfileRoute,
   QuestionRoute: QuestionRoute,
   RevealRoute: RevealRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

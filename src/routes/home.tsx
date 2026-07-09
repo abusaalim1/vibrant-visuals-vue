@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, Flame, Check, ArrowRight, Gift, Trophy } from "lucide-react";
+import { Bell, Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
@@ -123,7 +123,7 @@ function Home() {
         {/* Quick access */}
         <div className="grid grid-cols-2 gap-3">
           <Link
-            to="/achievements"
+            to="/playlist"
             className="card-soft relative overflow-hidden rounded-[22px] p-4 transition active:scale-[0.98]"
           >
             <div
@@ -135,14 +135,14 @@ function Home() {
               }}
             />
             <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--pink-soft)]">
-              <Trophy className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
+              <Music2 className="h-5 w-5 text-[color:var(--primary)]" strokeWidth={1.9} />
             </div>
-            <p className="relative mt-3 text-[15px] font-semibold text-ink">Achievements</p>
+            <p className="relative mt-3 text-[15px] font-semibold text-ink">Your song</p>
             <p className="relative text-[12px] leading-snug text-muted-ink">
-              4 of 12 unlocked
+              The playlist you built together
             </p>
             <p className="relative mt-1 text-[10.5px] font-medium text-[color:var(--primary)]">
-              2 close to unlocking →
+              12 tracks · Play →
             </p>
           </Link>
           <Link

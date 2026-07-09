@@ -199,18 +199,3 @@ function EditableRow({
   );
 }
 
-function MenuLink({
-  icon: Icon,
-  label,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-}) {
-  return (
-    <button className="flex w-full items-center gap-3 rounded-2xl border border-[color:var(--hairline)] bg-white p-4 text-[14px] font-medium text-ink transition active:scale-[0.98]">
-      <Icon className="h-4 w-4 text-[color:var(--primary)]" />
-      {label}
-      <ChevronRight className="ml-auto h-4 w-4 text-muted-ink" />
-    </button>
-  );
-}

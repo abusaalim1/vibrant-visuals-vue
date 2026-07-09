@@ -54,17 +54,19 @@ function Gifts() {
           const Icon = g.icon;
           return (
             <motion.button
-              key={g.name}
+              key={i}
+              disabled={g.disabled}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ y: -3 }}
-              whileTap={{ scale: 0.97 }}
+              transition={{ delay: i * 0.04 }}
+              whileHover={g.disabled ? {} : { y: -3 }}
+              whileTap={g.disabled ? {} : { scale: 0.97 }}
               onClick={() => {
+                if (g.disabled) return;
                 setSent(g.name);
                 setTimeout(() => setSent(null), 1800);
               }}
-              className="card-soft group rounded-[22px] p-4 text-left transition-shadow hover:shadow-float"
+              className={`card-soft group rounded-[22px] p-4 text-left transition-shadow hover:shadow-float ${g.disabled ? "opacity-50" : ""}`}
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[color:var(--pink-soft)]">
                 <Icon className="h-6 w-6 text-[color:var(--primary)]" strokeWidth={1.75} />

@@ -1,16 +1,25 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
-import { ArrowLeft, Flower2, Mail, Music, Mic, Heart } from "lucide-react";
+import { ArrowLeft, Flower2, Mail, Music, Mic, Heart, Gift, Star, Cake, Coffee, Camera, Sparkles } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import { AmbientBackdrop } from "@/components/usora/Blobs";
 
 export const Route = createFileRoute("/gifts")({ component: Gifts });
 
 const gifts = [
   { name: "Rose", price: "Free", icon: Flower2 },
-  { name: "Love Letter", price: "40 ✦", icon: Mail },
-  { name: "Playlist Card", price: "80 ✦", icon: Music },
-  { name: "Voice Note", price: "60 ✦", icon: Mic },
+  { name: "Love Letter", price: "₹19", icon: Mail },
+  { name: "Playlist Card", price: "₹29", icon: Music },
+  { name: "Voice Note", price: "₹39", icon: Mic },
+  { name: "Surprise Box", price: "₹49", icon: Gift },
+  { name: "Chai Date", price: "₹59", icon: Coffee },
+  { name: "Star Wish", price: "₹69", icon: Star },
+  { name: "Sweet Cake", price: "₹79", icon: Cake },
+  { name: "Photo Frame", price: "₹89", icon: Camera },
+  { name: "Sparkle Note", price: "₹99", icon: Sparkles },
+  { name: "More soon", price: "Coming", icon: Heart, disabled: true },
+  { name: "More soon", price: "Coming", icon: Heart, disabled: true },
 ];
 
 function Gifts() {

@@ -49,7 +49,7 @@ function Gifts() {
         </p>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3 px-6">
+      <div className="relative mt-6 grid grid-cols-2 gap-3 px-6 pb-10">
         {gifts.map((g, i) => {
           const Icon = g.icon;
           return (

@@ -28,6 +28,7 @@ function Gifts() {
 
   return (
     <PhoneShell>
+      <AmbientBackdrop />
       <header className="flex items-center justify-between px-6 pt-8">
         <button
           onClick={() => nav({ to: "/home" })}

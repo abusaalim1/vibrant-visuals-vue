@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Bell, Flame, Check, ArrowRight, Gift, Trophy } from "lucide-react";
+import { Bell, Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";

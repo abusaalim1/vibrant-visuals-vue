@@ -19,7 +19,6 @@ import { Route as InviteRouteImport } from './routes/invite'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as GiftsRouteImport } from './routes/gifts'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -72,11 +71,6 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AchievementsRoute = AchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -85,7 +79,6 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
@@ -99,7 +92,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
@@ -114,7 +106,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/achievements': typeof AchievementsRoute
   '/auth': typeof AuthRoute
   '/gifts': typeof GiftsRoute
   '/home': typeof HomeRoute
@@ -130,7 +121,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
@@ -144,7 +134,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
@@ -158,7 +147,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/achievements'
     | '/auth'
     | '/gifts'
     | '/home'
@@ -173,7 +161,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AchievementsRoute: typeof AchievementsRoute
   AuthRoute: typeof AuthRoute
   GiftsRoute: typeof GiftsRoute
   HomeRoute: typeof HomeRoute
@@ -258,13 +245,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/achievements': {
-      id: '/achievements'
-      path: '/achievements'
-      fullPath: '/achievements'
-      preLoaderRoute: typeof AchievementsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -277,7 +257,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AchievementsRoute: AchievementsRoute,
   AuthRoute: AuthRoute,
   GiftsRoute: GiftsRoute,
   HomeRoute: HomeRoute,

@@ -124,7 +124,7 @@ function Profile() {
             ))}
           </div>
         </div>
-        <div className="rounded-[22px] border border-[color:var(--hairline)] bg-white p-4 shadow-card">
+        <Link to="/playlist" className="rounded-[22px] border border-[color:var(--hairline)] bg-white p-4 shadow-card transition active:scale-[0.98]">
           <div className="flex items-center gap-2">
             <Music2 className="h-4 w-4 text-[color:var(--primary)]" />
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-ink">
@@ -142,12 +142,19 @@ function Profile() {
               />
             ))}
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Menu */}
       <div className="relative mt-4 space-y-2 px-6">
-        <MenuLink icon={Settings} label="Settings & theme" />
+        <Link
+          to="/settings"
+          className="flex w-full items-center gap-3 rounded-2xl border border-[color:var(--hairline)] bg-white p-4 text-[14px] font-medium text-ink transition active:scale-[0.98]"
+        >
+          <Settings className="h-4 w-4 text-[color:var(--primary)]" />
+          Settings & theme
+          <ChevronRight className="ml-auto h-4 w-4 text-muted-ink" />
+        </Link>
 
         <Link
           to="/"

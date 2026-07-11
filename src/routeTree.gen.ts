@@ -14,6 +14,7 @@ import { Route as RevealRouteImport } from './routes/reveal'
 import { Route as QuestionRouteImport } from './routes/question'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PlaylistRouteImport } from './routes/playlist'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as MemoriesRouteImport } from './routes/memories'
 import { Route as InviteRouteImport } from './routes/invite'
 import { Route as HomeRouteImport } from './routes/home'
@@ -44,6 +45,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PlaylistRoute = PlaylistRouteImport.update({
   id: '/playlist',
   path: '/playlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MemoriesRoute = MemoriesRouteImport.update({
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/onboarding': typeof OnboardingRoute
   '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/onboarding': typeof OnboardingRoute
   '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/invite': typeof InviteRoute
   '/memories': typeof MemoriesRoute
+  '/onboarding': typeof OnboardingRoute
   '/playlist': typeof PlaylistRoute
   '/profile': typeof ProfileRoute
   '/question': typeof QuestionRoute
@@ -126,6 +135,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invite'
     | '/memories'
+    | '/onboarding'
     | '/playlist'
     | '/profile'
     | '/question'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invite'
     | '/memories'
+    | '/onboarding'
     | '/playlist'
     | '/profile'
     | '/question'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/invite'
     | '/memories'
+    | '/onboarding'
     | '/playlist'
     | '/profile'
     | '/question'
@@ -166,6 +178,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   InviteRoute: typeof InviteRoute
   MemoriesRoute: typeof MemoriesRoute
+  OnboardingRoute: typeof OnboardingRoute
   PlaylistRoute: typeof PlaylistRoute
   ProfileRoute: typeof ProfileRoute
   QuestionRoute: typeof QuestionRoute
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       path: '/playlist'
       fullPath: '/playlist'
       preLoaderRoute: typeof PlaylistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/memories': {
@@ -262,6 +282,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   InviteRoute: InviteRoute,
   MemoriesRoute: MemoriesRoute,
+  OnboardingRoute: OnboardingRoute,
   PlaylistRoute: PlaylistRoute,
   ProfileRoute: ProfileRoute,
   QuestionRoute: QuestionRoute,

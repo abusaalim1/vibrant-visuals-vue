@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Lock,
   Send,
@@ -11,19 +11,16 @@ import {
   X,
   Plus,
   Check,
+  Copy,
 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/question")({ component: Question });
-
-const QUESTION = {
-  tag: "Intimacy",
-  day: 42,
-  text: "What small thing did I do this week that made you feel most loved?",
-};
 
 const GIFTS = [
   { name: "Rose", price: "Free", emoji: "🌹" },
@@ -41,20 +38,103 @@ const REACTIONS = [
   { label: "Surprised", emoji: "😮" },
 ];
 
+type Q = { id: number | string; text: string; category: string | null };
+
 function Question() {
   const nav = useNavigate();
+  const { user, couple, profile, loading } = useAuth();
   const [answer, setAnswer] = useState("");
   const [showCustom, setShowCustom] = useState(false);
   const [showGifts, setShowGifts] = useState(false);
   const [selectedGift, setSelectedGift] = useState<string | null>(null);
   const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [q, setQ] = useState<Q | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
-  const send = () => {
-    if (!answer.trim() && !selectedGift) return;
-    setLocked(true);
-    setTimeout(() => nav({ to: "/reveal" }), 2000);
+  useEffect(() => {
+    if (loading) return;
+    if (!user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("questions")
+        .select("id, text, category")
+        .order("id", { ascending: true })
+        .limit(1);
+      if (data && data[0]) setQ(data[0] as Q);
+    })();
+  }, []);
+
+  const connected = !!couple?.connected_at;
+
+  const copyCode = async () => {
+    if (!couple?.invite_code) return;
+    await navigator.clipboard?.writeText(couple.invite_code).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
+
+  const send = async () => {
+    if (!answer.trim() && !selectedGift) return;
+    if (!user || !couple || !q) return;
+    setSaveError(null);
+    setLocked(true);
+    try {
+      const { error } = await supabase.from("answers").insert({
+        question_id: q.id as unknown as string,
+        user_id: user.id,
+        couple_id: couple.id as unknown as string,
+        answer_text: answer.trim() || `Sent a ${selectedGift ?? "gift"} 💝`,
+      });
+      if (error) throw error;
+      setTimeout(() => nav({ to: "/reveal" }), 1600);
+    } catch (e) {
+      setLocked(false);
+      setSaveError(e instanceof Error ? e.message : "Couldn't save your answer.");
+    }
+  };
+
+  // Not connected → gate the flow
+  if (!loading && user && !connected) {
+    return (
+      <PhoneShell withNav>
+        <AmbientBackdrop />
+        <main className="relative flex flex-1 flex-col items-center justify-center px-6 pb-10 text-center">
+          <div className="flex items-end">
+            <Mascot variant="left" size={88} />
+            <Mascot variant="right" size={88} />
+          </div>
+          <h2 className="font-display mt-4 text-[26px] leading-tight text-ink">
+            Waiting for your partner to join
+          </h2>
+          <p className="mt-2 max-w-[300px] text-[13.5px] text-muted-ink">
+            Share your invite code so you can start answering questions together.
+          </p>
+          {couple?.invite_code && (
+            <div className="mt-6 rounded-[24px] border border-[color:var(--hairline)] bg-white px-8 py-5 shadow-card">
+              <p className="text-[10.5px] font-semibold uppercase tracking-[0.22em] text-muted-ink">
+                Your code
+              </p>
+              <p className="font-display mt-2 text-[38px] tracking-[0.1em] text-ink">
+                {couple.invite_code}
+              </p>
+              <button onClick={copyCode} className="btn-secondary mt-3 mx-auto">
+                {copied ? <><Check className="h-4 w-4" /> Copied</> : <><Copy className="h-4 w-4" /> Copy</>}
+              </button>
+            </div>
+          )}
+          <Link to="/invite" className="btn-primary mt-6">
+            Open invite screen
+          </Link>
+        </main>
+        <BottomNav />
+      </PhoneShell>
+    );
+  }
 
   return (
     <PhoneShell withNav>
@@ -63,13 +143,14 @@ function Question() {
       <header className="relative px-6 pt-8 text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--pink-soft)] px-3 py-1 text-[10.5px] font-semibold uppercase tracking-[0.18em] text-[color:var(--primary)]">
           <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--primary)]" />
-          Today's Question · {QUESTION.tag}
+          Today's Question · {q?.category ?? "For you"}
         </span>
-        <p className="mt-2 text-[12px] font-medium text-muted-ink">Day {QUESTION.day}</p>
+        <p className="mt-2 text-[12px] font-medium text-muted-ink">
+          {profile?.full_name?.split(" ")[0] ?? "You"} & {profile?.partner_name_label ?? "Partner"}
+        </p>
       </header>
 
       <main className="relative flex-1 px-6 pb-6">
-        {/* Mascots */}
         <div className="relative mt-4 flex items-end justify-center">
           <div
             aria-hidden
@@ -88,7 +169,6 @@ function Question() {
           </div>
         </div>
 
-        {/* Question */}
         <AnimatePresence mode="wait">
           {!locked && (
             <motion.h2
@@ -99,12 +179,11 @@ function Question() {
               transition={{ duration: 0.4 }}
               className="font-display mx-auto mt-5 max-w-[340px] text-center text-[28px] leading-[1.18] text-ink"
             >
-              "{QUESTION.text}"
+              "{q?.text ?? "Loading question…"}"
             </motion.h2>
           )}
         </AnimatePresence>
 
-        {/* Locked / Waiting */}
         <AnimatePresence mode="wait">
           {locked ? (
             <motion.div
@@ -121,18 +200,8 @@ function Question() {
               </div>
               <p className="font-display text-[22px] text-ink">Answer locked</p>
               <p className="text-[13px] leading-relaxed text-muted-ink">
-                Waiting for <span className="text-ink font-medium">Kai</span> to answer…
+                Waiting for <span className="text-ink font-medium">{profile?.partner_name_label ?? "your partner"}</span> to answer…
               </p>
-              <div className="mt-1 flex items-center gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <motion.span
-                    key={i}
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2 }}
-                    className="h-1.5 w-1.5 rounded-full bg-[color:var(--primary)]"
-                  />
-                ))}
-              </div>
             </motion.div>
           ) : (
             <motion.div
@@ -142,7 +211,6 @@ function Question() {
               transition={{ delay: 0.15 }}
               className="mt-7"
             >
-              {/* Textarea */}
               <div className="rounded-[24px] border border-[color:var(--hairline)] bg-white p-4 shadow-card">
                 <textarea
                   value={answer}
@@ -151,8 +219,6 @@ function Question() {
                   placeholder="Your answer here… (no character limit)"
                   className="w-full resize-none border-0 bg-transparent text-[14.5px] leading-relaxed text-ink outline-none placeholder:text-muted-ink"
                 />
-
-                {/* Selected gift chip */}
                 <AnimatePresence>
                   {selectedGift && (
                     <motion.div
@@ -172,7 +238,6 @@ function Question() {
                 </AnimatePresence>
               </div>
 
-              {/* Custom message drawer */}
               <AnimatePresence>
                 {showCustom && (
                   <motion.div
@@ -192,7 +257,7 @@ function Question() {
                             key={r.label}
                             onClick={() =>
                               setSelectedReaction(
-                                selectedReaction === r.label ? null : r.label
+                                selectedReaction === r.label ? null : r.label,
                               )
                             }
                             className={`flex flex-1 flex-col items-center gap-1 rounded-2xl border py-2 transition ${
@@ -214,7 +279,12 @@ function Question() {
                 )}
               </AnimatePresence>
 
-              {/* Action row */}
+              {saveError && (
+                <p className="mt-3 rounded-2xl bg-[color:var(--pink-soft)] px-3 py-2 text-[12.5px] text-[color:var(--primary)]">
+                  {saveError}
+                </p>
+              )}
+
               <div className="mt-4 grid grid-cols-3 gap-2">
                 <button
                   onClick={send}
@@ -248,7 +318,6 @@ function Question() {
         </AnimatePresence>
       </main>
 
-      {/* Gift picker overlay */}
       <AnimatePresence>
         {showGifts && (
           <motion.div

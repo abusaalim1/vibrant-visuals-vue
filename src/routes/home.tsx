@@ -1,17 +1,68 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { Bell, Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/home")({ component: Home });
 
-const streakDays = [true, true, true, true, true, true, false];
 const dayLetters = ["M", "T", "W", "T", "F", "S", "S"];
 
 function Home() {
+  const nav = useNavigate();
+  const { user, profile, couple, loading } = useAuth();
+  const [streak, setStreak] = useState(0);
+  const [streakDays, setStreakDays] = useState<boolean[]>([false, false, false, false, false, false, false]);
+  const [todaysQuestion, setTodaysQuestion] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) nav({ to: "/auth" });
+    else if (!profile?.full_name) nav({ to: "/onboarding" });
+  }, [loading, user, profile, nav]);
+
+  useEffect(() => {
+    (async () => {
+      const { data: q } = await supabase
+        .from("questions")
+        .select("text")
+        .order("id", { ascending: true })
+        .limit(1);
+      if (q && q[0]) setTodaysQuestion((q[0] as { text: string }).text);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (!user) return;
+      const since = new Date();
+      since.setDate(since.getDate() - 6);
+      const { data } = await supabase
+        .from("answers")
+        .select("created_at")
+        .eq("user_id", user.id as unknown as string)
+        .gte("created_at", since.toISOString());
+      const rows = (data ?? []) as { created_at: string }[];
+      setStreak(rows.length);
+      const days = [...Array(7)].map((_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        const key = d.toISOString().slice(0, 10);
+        return rows.some((r) => r.created_at.slice(0, 10) === key);
+      });
+      setStreakDays(days);
+    })();
+  }, [user]);
+
+  const you = profile?.full_name?.split(" ")[0] ?? profile?.name ?? "You";
+  const partner = profile?.partner_name_label ?? "Partner";
+  const notConnected = !couple?.connected_at;
+
   return (
     <PhoneShell withNav>
       <AmbientBackdrop />
@@ -21,7 +72,7 @@ function Home() {
           <div>
             <p className="text-[13px] text-muted-ink">Good morning</p>
             <h1 className="font-display text-[30px] leading-tight text-ink">
-              Aria <span className="text-muted-ink">&</span> Kai
+              {you} <span className="text-muted-ink">&</span> {partner}
             </h1>
           </div>
         </div>
@@ -36,7 +87,6 @@ function Home() {
       </header>
 
       <main className="relative mt-6 flex-1 space-y-4 px-6">
-        {/* Streak card */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -62,7 +112,7 @@ function Home() {
                 Current streak
               </p>
               <p className="mt-1 flex items-baseline gap-1.5">
-                <span className="font-display text-[46px] leading-none text-ink">42</span>
+                <span className="font-display text-[46px] leading-none text-ink">{streak}</span>
                 <span className="text-[15px] text-muted-ink">days</span>
               </p>
             </div>
@@ -88,8 +138,6 @@ function Home() {
           </div>
         </motion.div>
 
-
-        {/* Today's question preview */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -110,17 +158,26 @@ function Home() {
           />
           <span className="relative inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-[color:var(--primary)] shadow-card">
             <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--primary)]" />
-            Today · Intimacy
+            {notConnected ? "Not connected yet" : "Today · Intimacy"}
           </span>
           <p className="font-display relative mt-4 text-[26px] leading-[1.2] text-ink">
-            "What small thing did I do this week that made you feel most loved?"
+            {notConnected
+              ? "Connect with your partner to start your first question"
+              : todaysQuestion
+                ? `"${todaysQuestion}"`
+                : "Loading today's question…"}
           </p>
-          <Link to="/question" className="btn-primary relative mt-6 w-full">
-            Answer now <ArrowRight className="h-4 w-4" />
-          </Link>
+          {notConnected ? (
+            <Link to="/invite" className="btn-primary relative mt-6 w-full">
+              Connect your partner <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <Link to="/question" className="btn-primary relative mt-6 w-full">
+              Answer now <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
         </motion.div>
 
-        {/* Quick access */}
         <div className="grid grid-cols-2 gap-3">
           <Link
             to="/playlist"
@@ -169,7 +226,6 @@ function Home() {
             </p>
           </Link>
         </div>
-
       </main>
 
       <BottomNav />

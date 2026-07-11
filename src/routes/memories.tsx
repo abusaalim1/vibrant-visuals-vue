@@ -1,83 +1,69 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Heart } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/memories")({ component: Memories });
 
-const filters = ["All", "Favorite", "Romantic", "Funny", "Deep"] as const;
+const filters = ["All", "Favorite"] as const;
 
-const tagAccent: Record<string, { border: string; thumb: string }> = {
-  Romantic: {
-    border: "#ff6f95",
-    thumb: "linear-gradient(135deg,#ffd0dc,#ff8fb1)",
-  },
-  Funny: {
-    border: "#f4c86a",
-    thumb: "linear-gradient(135deg,#fff0c8,#f7c86b)",
-  },
-  Deep: {
-    border: "#8aa0d8",
-    thumb: "linear-gradient(135deg,#d8e1f7,#8aa0d8)",
-  },
-  Favorite: {
-    border: "#ff4d79",
-    thumb: "linear-gradient(135deg,#ffc3d4,#ff4d79)",
-  },
+type AnswerRow = {
+  id: number;
+  created_at: string;
+  question_id: string | number;
+  user_id: string;
+  answer_text: string;
 };
-
-
-const groups = [
-  {
-    label: "Today",
-    items: [
-      {
-        day: 42,
-        q: "What small thing did I do this week that made you feel most loved?",
-        aria: "When you made me chai without asking on Tuesday.",
-        kai: "The little note you left on my laptop before my meeting.",
-        tags: ["Romantic", "Favorite"],
-      },
-    ],
-  },
-  {
-    label: "Yesterday",
-    items: [
-      {
-        day: 41,
-        q: "What's a song that reminds you of us?",
-        aria: "'Sunflower' — the drive to Lonavala.",
-        kai: "'Fix You' — 2AM after your rough Friday.",
-        tags: ["Romantic"],
-      },
-    ],
-  },
-  {
-    label: "This week",
-    items: [
-      {
-        day: 40,
-        q: "The most ridiculous thing we've ever done together?",
-        aria: "Karaoke in Bangalore. Terrible. Perfect.",
-        kai: "That 'shortcut' that added 2 hours to the drive.",
-        tags: ["Funny"],
-      },
-      {
-        day: 39,
-        q: "One dream you haven't told me yet?",
-        aria: "Opening a tiny bookstore café.",
-        kai: "A year traveling with no plans.",
-        tags: ["Deep", "Favorite"],
-      },
-    ],
-  },
-];
 
 function Memories() {
   const [filter, setFilter] = useState<string>("All");
+  const { couple, user } = useAuth();
+  const [answers, setAnswers] = useState<AnswerRow[]>([]);
+  const [questionsMap, setQuestionsMap] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      if (!couple) {
+        setAnswers([]);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const { data } = await supabase
+          .from("answers")
+          .select("*")
+          .eq("couple_id", couple.id as unknown as string)
+          .order("created_at", { ascending: false });
+        const rows = (data ?? []) as AnswerRow[];
+        setAnswers(rows);
+        const qIds = Array.from(new Set(rows.map((r) => r.question_id))).filter(
+          Boolean,
+        );
+        if (qIds.length) {
+          const { data: qs } = await supabase
+            .from("questions")
+            .select("id, text")
+            .in("id", qIds as never);
+          const map: Record<string, string> = {};
+          for (const q of (qs ?? []) as { id: number | string; text: string }[])
+            map[String(q.id)] = q.text;
+          setQuestionsMap(map);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [couple]);
+
+  // group by relative date
+  const grouped = groupByRelative(answers);
 
   return (
     <PhoneShell withNav>
@@ -132,96 +118,63 @@ function Memories() {
       </div>
 
       <div className="relative mt-6 space-y-6 px-6">
-        {groups.map((g) => (
-          <section key={g.label}>
-            <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-ink">
-              {g.label}
-            </h3>
-            <div className="space-y-3">
-              {g.items
-                .filter(
-                  (m) =>
-                    filter === "All" ||
-                    m.tags.includes(filter as (typeof m.tags)[number]),
-                )
-                .map((m, idx) => {
-                  const primaryTag =
-                    m.tags.find((t) => t !== "Favorite") ?? m.tags[0];
-                  const accent = tagAccent[primaryTag] ?? tagAccent.Romantic;
+        {loading ? (
+          <p className="text-center text-[13px] text-muted-ink">Loading…</p>
+        ) : answers.length === 0 ? (
+          <div className="card-soft rounded-[22px] p-8 text-center">
+            <p className="font-display text-[20px] text-ink">
+              No memories yet
+            </p>
+            <p className="mt-2 text-[13px] text-muted-ink">
+              Start answering questions together to build your story.
+            </p>
+          </div>
+        ) : (
+          grouped.map((g) => (
+            <section key={g.label}>
+              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-ink">
+                {g.label}
+              </h3>
+              <div className="space-y-3">
+                {g.items.map((m, idx) => {
+                  const mine = m.user_id === user?.id;
                   return (
                     <motion.article
-                      key={m.day}
+                      key={m.id}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.05 }}
                       className="card-soft relative overflow-hidden rounded-[22px] p-5 pl-6"
-                      style={{ borderLeft: `4px solid ${accent.border}` }}
+                      style={{ borderLeft: `4px solid #ff6f95` }}
                     >
                       <div className="flex items-start gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-semibold uppercase tracking-widest text-[color:var(--primary)]">
-                              Day {m.day}
+                              {new Date(m.created_at).toLocaleDateString()}
                             </span>
-                            {m.tags.includes("Favorite") && (
-                              <Heart
-                                className="h-4 w-4 text-[color:var(--primary)]"
-                                fill="currentColor"
-                              />
-                            )}
+                            <Heart className="h-4 w-4 text-[color:var(--primary)]/40" />
                           </div>
                           <p className="font-display mt-2 text-[19px] leading-snug text-ink">
-                            "{m.q}"
-                          </p>
-                        </div>
-                        <div
-                          aria-hidden
-                          className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl shadow-card"
-                          style={{ background: accent.thumb }}
-                        >
-                          <div
-                            className="absolute inset-0"
-                            style={{
-                              background:
-                                "radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55), transparent 55%)",
-                            }}
-                          />
-                        </div>
-                      </div>
-                      <div className="mt-4 grid grid-cols-2 gap-2">
-                        <div className="rounded-2xl bg-[color:var(--surface)] p-3">
-                          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
-                            Aria
-                          </p>
-                          <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
-                            {m.aria}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl bg-[color:var(--surface)] p-3">
-                          <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
-                            Kai
-                          </p>
-                          <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
-                            {m.kai}
+                            "{questionsMap[String(m.question_id)] ?? "A shared moment"}"
                           </p>
                         </div>
                       </div>
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {m.tags.map((t) => (
-                          <span
-                            key={t}
-                            className="rounded-full bg-[color:var(--pink-soft)] px-2.5 py-0.5 text-[10.5px] font-semibold text-[color:var(--primary)]"
-                          >
-                            {t}
-                          </span>
-                        ))}
+                      <div className="mt-4 rounded-2xl bg-[color:var(--surface)] p-3">
+                        <p className="text-[10.5px] font-semibold uppercase tracking-widest text-muted-ink">
+                          {mine ? "You" : "Partner"}
+                        </p>
+                        <p className="mt-1 text-[12.5px] leading-snug text-ink/85">
+                          {m.answer_text}
+                        </p>
                       </div>
                     </motion.article>
                   );
                 })}
-            </div>
-          </section>
-        ))}
+              </div>
+            </section>
+          ))
+        )}
       </div>
 
       <BottomNav />
@@ -229,3 +182,26 @@ function Memories() {
   );
 }
 
+function groupByRelative(rows: AnswerRow[]) {
+  const today = new Date().toISOString().slice(0, 10);
+  const y = new Date();
+  y.setDate(y.getDate() - 1);
+  const yesterday = y.toISOString().slice(0, 10);
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const buckets: { label: string; items: AnswerRow[] }[] = [
+    { label: "Today", items: [] },
+    { label: "Yesterday", items: [] },
+    { label: "This week", items: [] },
+    { label: "Earlier", items: [] },
+  ];
+  for (const r of rows) {
+    const d = r.created_at.slice(0, 10);
+    if (d === today) buckets[0].items.push(r);
+    else if (d === yesterday) buckets[1].items.push(r);
+    else if (new Date(r.created_at) >= weekAgo) buckets[2].items.push(r);
+    else buckets[3].items.push(r);
+  }
+  return buckets.filter((b) => b.items.length);
+}

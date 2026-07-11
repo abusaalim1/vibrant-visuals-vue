@@ -1,27 +1,53 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Menu, Bell, Settings, ChevronRight, LogOut, Music2, Palette } from "lucide-react";
+import { useEffect } from "react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
-
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/profile")({ component: Profile });
 
-const stats = [
-  { label: "Questions", value: "128" },
-  { label: "Day streak", value: "42" },
-  { label: "Memories", value: "96" },
-  { label: "Milestones", value: "4" },
-];
-
 function Profile() {
+  const nav = useNavigate();
+  const { profile, couple, loading, user, signOut } = useAuth();
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
+  const you = profile?.full_name ?? "You";
+  const partner = profile?.partner_name_label ?? "Partner";
+  const relStart = profile?.relationship_start_date
+    ? new Date(profile.relationship_start_date)
+    : null;
+  const connected = !!couple?.connected_at;
+  const togetherLabel = connected && relStart
+    ? `Together since ${relStart.toLocaleDateString(undefined, {
+        month: "short", day: "numeric", year: "numeric",
+      })}`
+    : "Not connected yet";
+  const daysTogether = relStart
+    ? Math.max(
+        0,
+        Math.floor(
+          (Date.now() - relStart.getTime()) / (1000 * 60 * 60 * 24),
+        ),
+      )
+    : 0;
+
+  const handleSignOut = async () => {
+    await signOut();
+    nav({ to: "/" });
+  };
+
   return (
     <PhoneShell withNav>
       <AmbientBackdrop />
       <header className="relative flex items-center justify-between px-6 pt-8">
         <button className="flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white">
-
           <Menu className="h-4 w-4" />
         </button>
         <span className="font-display text-[20px] text-ink">Usora</span>
@@ -31,10 +57,8 @@ function Profile() {
         </button>
       </header>
 
-      {/* Couple hero */}
       <div className="relative mt-6 px-6">
         <div className="relative overflow-hidden rounded-[28px] border border-[color:var(--hairline)] bg-gradient-hero p-6 shadow-card">
-          {/* subtle banner texture */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70"
@@ -62,49 +86,38 @@ function Profile() {
             </div>
             <div>
               <p className="font-display text-[26px] leading-tight text-ink">
-                Aria & Kai
+                {you.split(" ")[0]} & {partner}
               </p>
-              <p className="text-[12.5px] text-muted-ink">Together since Feb 14, 2023</p>
-              <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[color:var(--primary)] ring-1 ring-[color:var(--hairline)]">
-                1,240 days together
-              </span>
+              <p className="text-[12.5px] text-muted-ink">{togetherLabel}</p>
+              {connected && (
+                <span className="mt-2 inline-flex rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[color:var(--primary)] ring-1 ring-[color:var(--hairline)]">
+                  {daysTogether} days together
+                </span>
+              )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="relative mt-4 grid grid-cols-4 gap-2 px-6">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-2xl border border-[color:var(--hairline)] bg-white p-3 text-center shadow-card"
-          >
-            <p className="font-display text-[22px] leading-none text-ink">{s.value}</p>
-            <p className="mt-1 text-[10.5px] font-medium text-muted-ink">{s.label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* About us */}
       <div className="relative mt-5 px-6">
         <div className="rounded-[24px] border border-[color:var(--hairline)] bg-white p-5 shadow-card">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-ink">
             About us
           </p>
           <div className="mt-3 space-y-3">
-            <EditableRow label="Aria" value="Aria Mehra" />
-            <EditableRow label="Kai" value="Kai Sharma" />
-            <EditableRow
-              label="Our tagline"
-              value="Two quiet people, one loud love."
-              italic
-            />
+            <Row label="Your name" value={profile?.full_name ?? "—"} />
+            <Row label="Age" value={profile?.age ? String(profile.age) : "—"} />
+            <Row label="Partner" value={profile?.partner_name_label ?? "—"} />
+            {profile?.met_story && (
+              <Row label="How you met" value={profile.met_story} italic />
+            )}
+            {profile?.interests && (
+              <Row label="Shared interests" value={profile.interests} />
+            )}
           </div>
         </div>
       </div>
 
-      {/* Your theme + song */}
       <div className="relative mt-4 grid grid-cols-2 gap-3 px-6">
         <div className="rounded-[22px] border border-[color:var(--hairline)] bg-white p-4 shadow-card">
           <div className="flex items-center gap-2">
@@ -145,7 +158,6 @@ function Profile() {
         </Link>
       </div>
 
-      {/* Menu */}
       <div className="relative mt-4 space-y-2 px-6">
         <Link
           to="/settings"
@@ -156,14 +168,14 @@ function Profile() {
           <ChevronRight className="ml-auto h-4 w-4 text-muted-ink" />
         </Link>
 
-        <Link
-          to="/"
-          className="flex items-center gap-3 rounded-2xl border border-[color:var(--hairline)] bg-white p-4 text-[14px] font-medium text-ink transition active:scale-[0.98]"
+        <button
+          onClick={handleSignOut}
+          className="flex w-full items-center gap-3 rounded-2xl border border-[color:var(--hairline)] bg-white p-4 text-left text-[14px] font-medium text-ink transition active:scale-[0.98]"
         >
           <LogOut className="h-4 w-4 text-[color:var(--primary)]" />
           Sign out
           <ChevronRight className="ml-auto h-4 w-4 text-muted-ink" />
-        </Link>
+        </button>
       </div>
 
       <BottomNav />
@@ -171,7 +183,7 @@ function Profile() {
   );
 }
 
-function EditableRow({
+function Row({
   label,
   value,
   italic,
@@ -181,7 +193,7 @@ function EditableRow({
   italic?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between border-b border-[color:var(--hairline)] pb-3 last:border-0 last:pb-0">
+    <div className="flex items-start justify-between border-b border-[color:var(--hairline)] pb-3 last:border-0 last:pb-0">
       <div>
         <p className="text-[10.5px] font-semibold uppercase tracking-[0.16em] text-muted-ink">
           {label}
@@ -192,10 +204,6 @@ function EditableRow({
           {value}
         </p>
       </div>
-      <button className="text-[12px] font-semibold text-[color:var(--primary)]">
-        Edit
-      </button>
     </div>
   );
 }
-

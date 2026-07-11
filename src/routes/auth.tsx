@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { AmbientBlobs } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import bearPandaHug from "@/assets/bear-panda-hug.png";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth")({
   component: Auth,
@@ -57,7 +59,66 @@ function Auth() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const nav = useNavigate();
+  const { user, profile, loading, refresh } = useAuth();
+
+  // If already logged in, jump to the right place.
+  useEffect(() => {
+    if (loading) return;
+    if (!user) return;
+    if (!profile?.full_name) nav({ to: "/onboarding" });
+    else nav({ to: "/home" });
+  }, [loading, user, profile, nav]);
+
+  const submit = async () => {
+    setError(null);
+    if (!email.trim() || !pw) {
+      setError("Please enter your email and password.");
+      return;
+    }
+    setBusy(true);
+    try {
+      if (mode === "signup") {
+        const { data, error: sErr } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: pw,
+          options: {
+            emailRedirectTo:
+              typeof window !== "undefined" ? window.location.origin : undefined,
+            data: { name: name.trim() || null },
+          },
+        });
+        if (sErr) throw sErr;
+        // Create users row keyed by email
+        if (data.user) {
+          const { error: insErr } = await supabase.from("users").insert({
+            email: email.trim(),
+            name: name.trim() || null,
+          });
+          // ignore duplicate errors (23505)
+          if (insErr && !`${insErr.message}`.toLowerCase().includes("duplicate"))
+            throw insErr;
+        }
+        await refresh();
+        nav({ to: "/onboarding" });
+      } else {
+        const { error: sErr } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: pw,
+        });
+        if (sErr) throw sErr;
+        await refresh();
+        // Redirect handled by effect above once profile hydrates.
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Unable to continue.";
+      setError(prettifyAuthError(msg));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <PhoneShell>
@@ -132,11 +193,18 @@ function Auth() {
               <Field label="Password" type="password" value={pw} onChange={setPw} />
             </div>
 
+            {error && (
+              <p className="mt-4 rounded-2xl bg-[color:var(--pink-soft)] px-3 py-2 text-[12.5px] text-[color:var(--primary)]">
+                {error}
+              </p>
+            )}
+
             <button
-              onClick={() => nav({ to: "/invite" })}
-              className="btn-primary mt-8 w-full"
+              onClick={submit}
+              disabled={busy}
+              className="btn-primary mt-6 w-full disabled:opacity-60"
             >
-              {mode === "signin" ? "Sign in" : "Create account"}
+              {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
               <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
             </button>
 
@@ -146,14 +214,20 @@ function Auth() {
               <span className="h-px flex-1 bg-[color:var(--hairline)]" />
             </div>
 
-            <button className="btn-secondary w-full">
+            <button
+              className="btn-secondary w-full"
+              onClick={() => setError("Google sign-in isn't configured yet.")}
+            >
               <GoogleIcon /> Continue with Google
             </button>
 
             <p className="mt-6 text-center text-[13px] text-muted-ink">
               {mode === "signin" ? "New to Usora?" : "Already have an account?"}{" "}
               <button
-                onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                onClick={() => {
+                  setError(null);
+                  setMode(mode === "signin" ? "signup" : "signin");
+                }}
                 className="font-semibold text-[color:var(--primary)]"
               >
                 {mode === "signin" ? "Create account" : "Sign in"}
@@ -170,6 +244,17 @@ function Auth() {
       </div>
     </PhoneShell>
   );
+}
+
+function prettifyAuthError(m: string): string {
+  const low = m.toLowerCase();
+  if (low.includes("invalid login")) return "Wrong email or password.";
+  if (low.includes("already registered") || low.includes("already exists"))
+    return "This email is already registered. Try signing in.";
+  if (low.includes("password") && low.includes("6"))
+    return "Password must be at least 6 characters.";
+  if (low.includes("weak")) return "That password is too weak.";
+  return m;
 }
 
 function GoogleIcon() {

@@ -1,24 +1,84 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, Check, ArrowRight } from "lucide-react";
 import { AmbientBlobs } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/invite")({ component: Invite });
-
-const CODE = "LV-8H2K";
 
 function Invite() {
   const [copied, setCopied] = useState(false);
   const [partnerCode, setPartnerCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
   const nav = useNavigate();
+  const { user, couple, loading, refresh } = useAuth();
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
+  useEffect(() => {
+    if (couple?.connected_at) {
+      // already connected; forward
+      nav({ to: "/home" });
+    }
+  }, [couple, nav]);
+
+  const code = couple?.invite_code ?? "";
 
   const doCopy = async () => {
-    await navigator.clipboard?.writeText(CODE).catch(() => {});
+    if (!code) return;
+    await navigator.clipboard?.writeText(code).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
+  };
+
+  const join = async () => {
+    setError(null);
+    const c = partnerCode.trim().toUpperCase();
+    if (!c) return;
+    if (!user) return;
+    if (couple && c === couple.invite_code) {
+      setError("You can't use your own code.");
+      return;
+    }
+    setJoining(true);
+    try {
+      const { data: match, error: qErr } = await supabase
+        .from("couples")
+        .select("*")
+        .eq("invite_code", c)
+        .maybeSingle();
+      if (qErr) throw qErr;
+      if (!match) {
+        setError("Invalid code, please check and try again.");
+        return;
+      }
+      if (match.user1_id === user.id) {
+        setError("You can't use your own code.");
+        return;
+      }
+      if (match.user2_id) {
+        setError("This code has already been used.");
+        return;
+      }
+      const { error: uErr } = await supabase
+        .from("couples")
+        .update({ user2_id: user.id, connected_at: new Date().toISOString() })
+        .eq("id", match.id);
+      if (uErr) throw uErr;
+      await refresh();
+      nav({ to: "/home" });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+    } finally {
+      setJoining(false);
+    }
   };
 
   return (
@@ -29,7 +89,7 @@ function Invite() {
         <header className="relative z-10 flex items-center justify-between px-6 pt-8">
           <Link to="/" className="text-[13px] text-muted-ink">← Back</Link>
           <span className="text-[12px] uppercase tracking-[0.18em] text-muted-ink">
-            Step 1 of 2
+            Step 2 of 2
           </span>
         </header>
 
@@ -53,12 +113,13 @@ function Invite() {
             </div>
             <div className="mt-4 flex items-center justify-center gap-3">
               <span className="font-display text-[52px] tracking-[0.08em] text-ink">
-                {CODE}
+                {code || "······"}
               </span>
             </div>
             <button
               onClick={doCopy}
-              className="btn-secondary mx-auto mt-6"
+              disabled={!code}
+              className="btn-secondary mx-auto mt-6 disabled:opacity-50"
               aria-label="Copy code"
             >
               {copied ? (
@@ -68,7 +129,6 @@ function Invite() {
               )}
             </button>
 
-            {/* Pulse: waiting for partner */}
             <div className="mt-8 flex items-center justify-center gap-3">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[color:var(--primary)] opacity-60" />
@@ -94,25 +154,28 @@ function Invite() {
               <input
                 value={partnerCode}
                 onChange={(e) => setPartnerCode(e.target.value.toUpperCase())}
-                placeholder="e.g. LV-8H2K"
+                placeholder="e.g. AB12CD"
                 className="flex-1 rounded-full border border-[color:var(--hairline)] bg-white px-4 py-3 text-[15px] tracking-widest text-ink outline-none transition focus:border-[color:var(--primary)]"
               />
               <button
-                onClick={() => nav({ to: "/home" })}
-                className="btn-primary !px-5 !py-3"
+                onClick={join}
+                disabled={joining}
+                className="btn-primary !px-5 !py-3 disabled:opacity-60"
                 aria-label="Join"
               >
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
+            {error && (
+              <p className="mt-3 rounded-2xl bg-[color:var(--pink-soft)] px-3 py-2 text-[12.5px] text-[color:var(--primary)]">
+                {error}
+              </p>
+            )}
           </div>
 
           <div className="mt-8 flex w-full items-end justify-between">
             <Mascot variant="left" size={72} />
-            <button
-              onClick={() => nav({ to: "/home" })}
-              className="btn-ghost"
-            >
+            <button onClick={() => nav({ to: "/home" })} className="btn-ghost">
               Skip for now →
             </button>
           </div>

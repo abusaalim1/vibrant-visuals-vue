@@ -103,9 +103,12 @@ function Invite() {
         .update({ user2_id: user.id, connected_at: new Date().toISOString() })
         .eq("id", match.id);
       if (uErr) throw uErr;
+      if (typeof window !== "undefined")
+        window.localStorage.removeItem(PENDING_KEY);
       await refresh();
       nav({ to: "/home" });
     } catch (e) {
+      console.error("[invite] join failed:", e);
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
       setJoining(false);

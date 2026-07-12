@@ -22,10 +22,17 @@ type AnswerRow = {
 
 function Memories() {
   const [filter, setFilter] = useState<string>("All");
-  const { couple, user } = useAuth();
+  const { couple, user, profile, loading: authLoading } = useAuth();
+  const nav = useNavigate();
   const [answers, setAnswers] = useState<AnswerRow[]>([]);
   const [questionsMap, setQuestionsMap] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) nav({ to: "/auth" });
+    else if (!profile?.full_name) nav({ to: "/onboarding" });
+  }, [authLoading, user, profile, nav]);
 
   useEffect(() => {
     (async () => {

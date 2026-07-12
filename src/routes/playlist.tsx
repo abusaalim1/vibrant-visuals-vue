@@ -19,9 +19,14 @@ const TRACKS = [
 
 function Playlist() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [playing, setPlaying] = useState(false);
   const [current] = useState(0);
   const track = TRACKS[current];
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
 
   return (
     <PhoneShell>

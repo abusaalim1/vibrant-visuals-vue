@@ -24,9 +24,15 @@ const THEMES = [
 
 function Settings() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("profile");
   const [theme, setTheme] = useState("Blush");
   const [notifs, setNotifs] = useState({ daily: true, gift: true, streak: false });
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
 
   return (
     <PhoneShell>

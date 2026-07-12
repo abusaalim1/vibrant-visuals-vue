@@ -10,24 +10,55 @@ import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/invite")({ component: Invite });
 
+const PENDING_KEY = "usora.pendingInvite";
+
+function readQueryCode(): string | null {
+  if (typeof window === "undefined") return null;
+  const p = new URLSearchParams(window.location.search);
+  const c = (p.get("code") || p.get("invite") || "").trim().toUpperCase();
+  return c || null;
+}
+
 function Invite() {
   const [copied, setCopied] = useState(false);
   const [partnerCode, setPartnerCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const nav = useNavigate();
-  const { user, couple, loading, refresh } = useAuth();
+  const { user, profile, couple, loading, refresh } = useAuth();
 
+  // If a code is present in the URL, persist it and route unauthenticated
+  // users to sign-in before letting them join.
   useEffect(() => {
-    if (!loading && !user) nav({ to: "/auth" });
-  }, [loading, user, nav]);
+    if (loading) return;
+    const urlCode = readQueryCode();
+    if (urlCode && typeof window !== "undefined") {
+      window.localStorage.setItem(PENDING_KEY, urlCode);
+    }
+    if (!user) {
+      nav({ to: "/auth" });
+      return;
+    }
+    if (!profile?.full_name) {
+      nav({ to: "/onboarding" });
+      return;
+    }
+    // Autofill any pending code so the user just taps join.
+    const pending =
+      typeof window !== "undefined"
+        ? window.localStorage.getItem(PENDING_KEY)
+        : null;
+    if (pending && !partnerCode) setPartnerCode(pending);
+  }, [loading, user, profile, nav, partnerCode]);
 
   useEffect(() => {
     if (couple?.connected_at) {
-      // already connected; forward
+      if (typeof window !== "undefined")
+        window.localStorage.removeItem(PENDING_KEY);
       nav({ to: "/home" });
     }
   }, [couple, nav]);
+
 
   const code = couple?.invite_code ?? "";
 

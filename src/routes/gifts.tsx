@@ -25,7 +25,13 @@ const gifts = [
 
 function Gifts() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [sent, setSent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
 
   return (
     <PhoneShell>

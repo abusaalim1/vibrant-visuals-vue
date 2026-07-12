@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, User, Bell, Palette, Shield, Check } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";

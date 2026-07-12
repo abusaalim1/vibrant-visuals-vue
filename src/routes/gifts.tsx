@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Flower2, Mail, Music, Mic, Heart, Gift, Star, Cake, Coffee, Camera, Sparkles } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/gifts")({ component: Gifts });
 
@@ -24,7 +25,13 @@ const gifts = [
 
 function Gifts() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [sent, setSent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
 
   return (
     <PhoneShell>

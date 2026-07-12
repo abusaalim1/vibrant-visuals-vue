@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Heart, Music2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 
@@ -18,9 +19,14 @@ const TRACKS = [
 
 function Playlist() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [playing, setPlaying] = useState(false);
   const [current] = useState(0);
   const track = TRACKS[current];
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
 
   return (
     <PhoneShell>

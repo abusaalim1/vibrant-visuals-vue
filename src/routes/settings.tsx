@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, User, Bell, Palette, Shield, Check } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
@@ -23,9 +24,15 @@ const THEMES = [
 
 function Settings() {
   const nav = useNavigate();
+  const { user, loading } = useAuth();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("profile");
   const [theme, setTheme] = useState("Blush");
   const [notifs, setNotifs] = useState({ daily: true, gift: true, streak: false });
+
+  useEffect(() => {
+    if (!loading && !user) nav({ to: "/auth" });
+  }, [loading, user, nav]);
+
 
   return (
     <PhoneShell>

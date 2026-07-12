@@ -36,35 +36,62 @@ function Onboarding() {
   }, [loading, user, profile, nav]);
 
   const submit = async () => {
-    if (!user?.email) return;
+    if (!user?.email || !user?.id) return;
     if (!fullName.trim() || !age || !partnerName.trim() || !startDate) {
       setError("Please fill in the required fields.");
+      return;
+    }
+    const ageNum = Number(age);
+    if (!Number.isFinite(ageNum) || ageNum <= 0 || ageNum > 120) {
+      setError("Please enter a valid age.");
+      return;
+    }
+    const parsedDate = new Date(startDate);
+    if (Number.isNaN(parsedDate.getTime())) {
+      setError("Please pick a valid start date.");
       return;
     }
     setSaving(true);
     setError(null);
     try {
-      // Update or insert users row (row was created at signup, keyed by email)
-      const { error: upErr } = await supabase
+      const payload = {
+        email: user.email,
+        full_name: fullName.trim(),
+        name: fullName.trim(),
+        age: ageNum,
+        partner_name_label: partnerName.trim(),
+        relationship_start_date: parsedDate.toISOString(),
+        met_story: metStory.trim() || null,
+        interests: interests.trim() || null,
+      };
+
+      // Try update; if no row matched, insert one.
+      const { data: updated, error: upErr } = await supabase
         .from("users")
-        .update({
-          full_name: fullName.trim(),
-          name: fullName.trim(),
-          age: Number(age),
-          partner_name_label: partnerName.trim(),
-          relationship_start_date: new Date(startDate).toISOString(),
-          met_story: metStory.trim() || null,
-          interests: interests.trim() || null,
-        })
-        .eq("email", user.email);
-      if (upErr) throw upErr;
+        .update(payload)
+        .eq("email", user.email)
+        .select("id");
+      if (upErr) {
+        console.error("[onboarding] update users failed:", upErr);
+        throw upErr;
+      }
+      if (!updated || updated.length === 0) {
+        const { error: insErr } = await supabase.from("users").insert(payload);
+        if (insErr) {
+          console.error("[onboarding] insert users failed:", insErr);
+          throw insErr;
+        }
+      }
 
       // Create couples row with invite code if user doesn't already have one
-      const { data: existing } = await supabase
+      const { data: existing, error: exErr } = await supabase
         .from("couples")
         .select("id")
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .maybeSingle();
+      if (exErr) {
+        console.error("[onboarding] fetch couple failed:", exErr);
+      }
       if (!existing) {
         const code = generateInviteCode();
         const { error: cErr } = await supabase.from("couples").insert({
@@ -72,12 +99,17 @@ function Onboarding() {
           user1_id: user.id,
           user2_id: null,
         });
-        if (cErr) throw cErr;
+        if (cErr) {
+          console.error("[onboarding] insert couple failed:", cErr);
+          throw cErr;
+        }
       }
       await refresh();
       nav({ to: "/invite" });
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      const msg = e instanceof Error ? e.message : JSON.stringify(e);
+      console.error("[onboarding] submit failed:", e);
+      setError(msg || "Something went wrong.");
     } finally {
       setSaving(false);
     }

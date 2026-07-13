@@ -59,6 +59,68 @@ function Invite() {
     }
   }, [couple, nav]);
 
+  // Ensure a couples row exists for this user. If none, create one with a
+  // freshly generated invite code so the user can share immediately.
+  useEffect(() => {
+    if (loading || !user || !profile?.full_name) return;
+    if (couple) return;
+    let cancelled = false;
+    (async () => {
+      // Double-check nothing exists (avoid race with auth hydrate)
+      const { data: existing } = await supabase
+        .from("couples")
+        .select("id")
+        .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
+        .maybeSingle();
+      if (cancelled) return;
+      if (existing) {
+        await refresh();
+        return;
+      }
+      // Retry a few times in case of unique-code collision
+      for (let i = 0; i < 5; i++) {
+        const code = generateInviteCode();
+        const { error: insErr } = await supabase.from("couples").insert({
+          invite_code: code,
+          user1_id: user.id,
+          user2_id: null,
+        });
+        if (!insErr) break;
+        if (!/duplicate|unique/i.test(insErr.message)) {
+          console.error("[invite] auto-create couple failed:", insErr);
+          break;
+        }
+      }
+      if (!cancelled) await refresh();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, user, profile, couple, refresh]);
+
+  // Live update when partner joins: subscribe to couples row and refresh.
+  useEffect(() => {
+    if (!couple?.id) return;
+    const ch = supabase
+      .channel(`couples:${couple.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "couples",
+          filter: `id=eq.${couple.id}`,
+        },
+        () => {
+          refresh();
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [couple?.id, refresh]);
+
 
   const code = couple?.invite_code ?? "";
 

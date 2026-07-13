@@ -6,7 +6,7 @@ import { AmbientBlobs } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { useAuth } from "@/lib/auth";
-import { supabase } from "@/lib/supabase";
+import { supabase, generateInviteCode } from "@/lib/supabase";
 
 export const Route = createFileRoute("/invite")({ component: Invite });
 

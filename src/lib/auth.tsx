@@ -71,8 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPartner(null);
       return;
     }
-    const email = s.user.email ?? "";
-    const p = await fetchProfile(email);
+    const p = await fetchProfile(s.user.id);
     setProfile(p);
     const c = await fetchCouple(s.user.id);
     setCouple(c);

@@ -55,6 +55,7 @@ function Onboarding() {
     setError(null);
     try {
       const payload = {
+        auth_id: user.id,
         email: user.email,
         full_name: fullName.trim(),
         name: fullName.trim(),
@@ -65,11 +66,11 @@ function Onboarding() {
         interests: interests.trim() || null,
       };
 
-      // Try update; if no row matched, insert one.
+      // Try update by auth_id; if no row matched, insert one.
       const { data: updated, error: upErr } = await supabase
         .from("users")
         .update(payload)
-        .eq("email", user.email)
+        .eq("auth_id", user.id)
         .select("id");
       if (upErr) {
         console.error("[onboarding] update users failed:", upErr);

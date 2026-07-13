@@ -101,6 +101,7 @@ function Auth() {
         // Create users row keyed by email
         if (data.user) {
           const { error: insErr } = await supabase.from("users").insert({
+            auth_id: data.user.id,
             email: email.trim(),
             name: name.trim() || null,
           });

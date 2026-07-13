@@ -22,11 +22,11 @@ type AuthState = {
 
 const AuthContext = createContext<AuthState | undefined>(undefined);
 
-async function fetchProfile(email: string): Promise<UserProfile | null> {
+async function fetchProfile(authId: string): Promise<UserProfile | null> {
   const { data } = await supabase
     .from("users")
     .select("*")
-    .eq("email", email)
+    .eq("auth_id", authId)
     .maybeSingle();
   return (data as UserProfile) ?? null;
 }
@@ -71,8 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setPartner(null);
       return;
     }
-    const email = s.user.email ?? "";
-    const p = await fetchProfile(email);
+    const p = await fetchProfile(s.user.id);
     setProfile(p);
     const c = await fetchCouple(s.user.id);
     setCouple(c);

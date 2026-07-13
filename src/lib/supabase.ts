@@ -14,6 +14,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 export type UserProfile = {
   id: number;
+  auth_id: string | null;
   email: string | null;
   name: string | null;
   full_name: string | null;

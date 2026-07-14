@@ -156,13 +156,32 @@ function Invite() {
   }, [couple?.id, refresh]);
 
 
-  const code = couple?.invite_code ?? "";
+  const code = couple?.invite_code ?? localCode ?? "";
+  console.log("[invite] rendering code:", code, "couple:", couple?.id, "localCode:", localCode);
 
   const doCopy = async () => {
-    if (!code) return;
-    await navigator.clipboard?.writeText(code).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
+    if (!code) {
+      console.warn("[invite] copy attempted with empty code");
+      return;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = code;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (e) {
+      console.error("[invite] copy failed:", e);
+    }
   };
 
   const join = async () => {

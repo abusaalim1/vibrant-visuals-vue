@@ -245,9 +245,18 @@ function Invite() {
             </div>
             <div className="mt-4 flex items-center justify-center gap-3">
               <span className="font-display text-[52px] tracking-[0.08em] text-ink">
-                {code || "······"}
+                {code
+                  ? code
+                  : creating
+                    ? "…"
+                    : "······"}
               </span>
             </div>
+            {createError && (
+              <p className="mt-3 rounded-2xl bg-[color:var(--pink-soft)] px-3 py-2 text-[12px] text-[color:var(--primary)]">
+                Couldn't generate a code: {createError}
+              </p>
+            )}
             <button
               onClick={doCopy}
               disabled={!code}

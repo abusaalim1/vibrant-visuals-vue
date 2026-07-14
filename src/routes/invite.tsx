@@ -24,6 +24,8 @@ function Invite() {
   const [partnerCode, setPartnerCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const nav = useNavigate();
   const { user, profile, couple, loading, refresh } = useAuth();
 

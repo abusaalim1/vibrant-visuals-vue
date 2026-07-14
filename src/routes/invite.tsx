@@ -26,6 +26,7 @@ function Invite() {
   const [joining, setJoining] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [localCode, setLocalCode] = useState<string | null>(null);
   const nav = useNavigate();
   const { user, profile, couple, loading, refresh } = useAuth();
 
@@ -65,17 +66,26 @@ function Invite() {
   // freshly generated invite code so the user can share immediately.
   useEffect(() => {
     if (loading || !user || !profile?.full_name) return;
-    if (couple) return;
+    if (couple) {
+      console.log("[invite] existing couple from auth:", couple);
+      return;
+    }
     let cancelled = false;
     setCreating(true);
     (async () => {
-      // Double-check nothing exists (avoid race with auth hydrate)
-      const { data: existing } = await supabase
+      console.log("[invite] current auth user.id:", user.id);
+      const { data: existing, error: exErr } = await supabase
         .from("couples")
-        .select("id")
+        .select("*")
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .maybeSingle();
+      console.log("[invite] existing couples lookup:", { existing, exErr });
       if (cancelled) return;
+      if (exErr) {
+        setCreateError(exErr.message);
+        setCreating(false);
+        return;
+      }
       if (existing) {
         await refresh();
         setCreating(false);
@@ -84,20 +94,25 @@ function Invite() {
       let lastErr: string | null = null;
       for (let i = 0; i < 5; i++) {
         const code = generateInviteCode();
-        // Ensure this code isn't already in use before inserting.
         const { data: dupe } = await supabase
           .from("couples")
           .select("id")
           .eq("invite_code", code)
           .maybeSingle();
         if (dupe) continue;
-        const { error: insErr } = await supabase.from("couples").insert({
-          invite_code: code,
-          user1_id: user.id,
-          user2_id: null,
-        });
+        const { data: inserted, error: insErr } = await supabase
+          .from("couples")
+          .insert({
+            invite_code: code,
+            user1_id: user.id,
+            user2_id: null,
+          })
+          .select()
+          .maybeSingle();
+        console.log("[invite] insert couples result:", { inserted, insErr, code });
         if (!insErr) {
           lastErr = null;
+          setLocalCode(code);
           break;
         }
         lastErr = insErr.message;
@@ -141,13 +156,32 @@ function Invite() {
   }, [couple?.id, refresh]);
 
 
-  const code = couple?.invite_code ?? "";
+  const code = couple?.invite_code ?? localCode ?? "";
+  console.log("[invite] rendering code:", code, "couple:", couple?.id, "localCode:", localCode);
 
   const doCopy = async () => {
-    if (!code) return;
-    await navigator.clipboard?.writeText(code).catch(() => {});
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
+    if (!code) {
+      console.warn("[invite] copy attempted with empty code");
+      return;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(code);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = code;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch (e) {
+      console.error("[invite] copy failed:", e);
+    }
   };
 
   const join = async () => {

@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
+import { Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
+import { NotificationBell } from "@/components/usora/NotificationBell";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 

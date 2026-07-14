@@ -36,6 +36,17 @@ export type Couple = {
   connected_at: string | null;
 };
 
+export type Notification = {
+  id: number;
+  created_at: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
+  related_user_name: string | null;
+};
+
 export function generateInviteCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "";

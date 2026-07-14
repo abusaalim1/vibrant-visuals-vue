@@ -24,6 +24,8 @@ function Invite() {
   const [partnerCode, setPartnerCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const nav = useNavigate();
   const { user, profile, couple, loading, refresh } = useAuth();
 
@@ -65,6 +67,7 @@ function Invite() {
     if (loading || !user || !profile?.full_name) return;
     if (couple) return;
     let cancelled = false;
+    setCreating(true);
     (async () => {
       // Double-check nothing exists (avoid race with auth hydrate)
       const { data: existing } = await supabase
@@ -75,23 +78,39 @@ function Invite() {
       if (cancelled) return;
       if (existing) {
         await refresh();
+        setCreating(false);
         return;
       }
-      // Retry a few times in case of unique-code collision
+      let lastErr: string | null = null;
       for (let i = 0; i < 5; i++) {
         const code = generateInviteCode();
+        // Ensure this code isn't already in use before inserting.
+        const { data: dupe } = await supabase
+          .from("couples")
+          .select("id")
+          .eq("invite_code", code)
+          .maybeSingle();
+        if (dupe) continue;
         const { error: insErr } = await supabase.from("couples").insert({
           invite_code: code,
           user1_id: user.id,
           user2_id: null,
         });
-        if (!insErr) break;
+        if (!insErr) {
+          lastErr = null;
+          break;
+        }
+        lastErr = insErr.message;
         if (!/duplicate|unique/i.test(insErr.message)) {
           console.error("[invite] auto-create couple failed:", insErr);
           break;
         }
       }
-      if (!cancelled) await refresh();
+      if (!cancelled) {
+        if (lastErr) setCreateError(lastErr);
+        await refresh();
+        setCreating(false);
+      }
     })();
     return () => {
       cancelled = true;
@@ -165,6 +184,23 @@ function Invite() {
         .update({ user2_id: user.id, connected_at: new Date().toISOString() })
         .eq("id", match.id);
       if (uErr) throw uErr;
+
+      // Notify the code-sharer (user1) that their partner joined.
+      try {
+        const joinerName =
+          profile?.full_name || profile?.name || "Your partner";
+        await supabase.from("notifications").insert({
+          user_id: match.user1_id,
+          type: "partner_joined",
+          title: "You're connected!",
+          message: `${joinerName} joined using your invite code`,
+          related_user_name: joinerName,
+          read: false,
+        });
+      } catch (nErr) {
+        console.warn("[invite] notification insert failed:", nErr);
+      }
+
       if (typeof window !== "undefined")
         window.localStorage.removeItem(PENDING_KEY);
       await refresh();
@@ -209,9 +245,18 @@ function Invite() {
             </div>
             <div className="mt-4 flex items-center justify-center gap-3">
               <span className="font-display text-[52px] tracking-[0.08em] text-ink">
-                {code || "······"}
+                {code
+                  ? code
+                  : creating
+                    ? "…"
+                    : "······"}
               </span>
             </div>
+            {createError && (
+              <p className="mt-3 rounded-2xl bg-[color:var(--pink-soft)] px-3 py-2 text-[12px] text-[color:var(--primary)]">
+                Couldn't generate a code: {createError}
+              </p>
+            )}
             <button
               onClick={doCopy}
               disabled={!code}

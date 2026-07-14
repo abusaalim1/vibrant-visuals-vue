@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Bell, Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
+import { Flame, Check, ArrowRight, Gift, Music2 } from "lucide-react";
 import { PhoneShell } from "@/components/usora/PhoneShell";
 import { BottomNav } from "@/components/usora/BottomNav";
 import { AmbientBackdrop } from "@/components/usora/Blobs";
 import { Mascot } from "@/components/usora/Mascot";
+import { NotificationBell } from "@/components/usora/NotificationBell";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
@@ -77,13 +78,8 @@ function Home() {
           </div>
         </div>
 
-        <button
-          aria-label="Notifications"
-          className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white"
-        >
-          <Bell className="h-5 w-5 text-ink" strokeWidth={1.75} />
-          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[color:var(--primary)]" />
-        </button>
+        <NotificationBell />
+
       </header>
 
       <main className="relative mt-6 flex-1 space-y-4 px-6">

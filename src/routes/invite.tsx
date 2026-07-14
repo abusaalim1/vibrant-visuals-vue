@@ -26,6 +26,7 @@ function Invite() {
   const [joining, setJoining] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [localCode, setLocalCode] = useState<string | null>(null);
   const nav = useNavigate();
   const { user, profile, couple, loading, refresh } = useAuth();
 

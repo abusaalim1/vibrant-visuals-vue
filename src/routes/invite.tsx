@@ -67,6 +67,7 @@ function Invite() {
     if (loading || !user || !profile?.full_name) return;
     if (couple) return;
     let cancelled = false;
+    setCreating(true);
     (async () => {
       // Double-check nothing exists (avoid race with auth hydrate)
       const { data: existing } = await supabase
@@ -77,23 +78,39 @@ function Invite() {
       if (cancelled) return;
       if (existing) {
         await refresh();
+        setCreating(false);
         return;
       }
-      // Retry a few times in case of unique-code collision
+      let lastErr: string | null = null;
       for (let i = 0; i < 5; i++) {
         const code = generateInviteCode();
+        // Ensure this code isn't already in use before inserting.
+        const { data: dupe } = await supabase
+          .from("couples")
+          .select("id")
+          .eq("invite_code", code)
+          .maybeSingle();
+        if (dupe) continue;
         const { error: insErr } = await supabase.from("couples").insert({
           invite_code: code,
           user1_id: user.id,
           user2_id: null,
         });
-        if (!insErr) break;
+        if (!insErr) {
+          lastErr = null;
+          break;
+        }
+        lastErr = insErr.message;
         if (!/duplicate|unique/i.test(insErr.message)) {
           console.error("[invite] auto-create couple failed:", insErr);
           break;
         }
       }
-      if (!cancelled) await refresh();
+      if (!cancelled) {
+        if (lastErr) setCreateError(lastErr);
+        await refresh();
+        setCreating(false);
+      }
     })();
     return () => {
       cancelled = true;

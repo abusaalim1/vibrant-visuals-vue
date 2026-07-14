@@ -112,6 +112,7 @@ function Invite() {
         console.log("[invite] insert couples result:", { inserted, insErr, code });
         if (!insErr) {
           lastErr = null;
+          setLocalCode(code);
           break;
         }
         lastErr = insErr.message;

@@ -78,13 +78,8 @@ function Home() {
           </div>
         </div>
 
-        <button
-          aria-label="Notifications"
-          className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--hairline)] bg-white"
-        >
-          <Bell className="h-5 w-5 text-ink" strokeWidth={1.75} />
-          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-[color:var(--primary)]" />
-        </button>
+        <NotificationBell />
+
       </header>
 
       <main className="relative mt-6 flex-1 space-y-4 px-6">

@@ -165,6 +165,23 @@ function Invite() {
         .update({ user2_id: user.id, connected_at: new Date().toISOString() })
         .eq("id", match.id);
       if (uErr) throw uErr;
+
+      // Notify the code-sharer (user1) that their partner joined.
+      try {
+        const joinerName =
+          profile?.full_name || profile?.name || "Your partner";
+        await supabase.from("notifications").insert({
+          user_id: match.user1_id,
+          type: "partner_joined",
+          title: "You're connected!",
+          message: `${joinerName} joined using your invite code`,
+          related_user_name: joinerName,
+          read: false,
+        });
+      } catch (nErr) {
+        console.warn("[invite] notification insert failed:", nErr);
+      }
+
       if (typeof window !== "undefined")
         window.localStorage.removeItem(PENDING_KEY);
       await refresh();

@@ -195,44 +195,37 @@ function Invite() {
     }
     setJoining(true);
     try {
-      const { data: match, error: qErr } = await supabase
-        .from("couples")
-        .select("*")
-        .eq("invite_code", c)
-        .maybeSingle();
-      if (qErr) throw qErr;
+      // Use a SECURITY DEFINER RPC so RLS doesn't hide the partner's row.
+      const { data: rpcData, error: rpcErr } = await supabase.rpc(
+        "join_couple_by_code",
+        { _code: c },
+      );
+      console.log("[invite] rpc join_couple_by_code:", { rpcData, rpcErr });
+
+      if (rpcErr) {
+        const msg = (rpcErr.message || "").toLowerCase();
+        if (msg.includes("own_code")) {
+          setError("You can't use your own code.");
+        } else if (msg.includes("code_used")) {
+          setError("This code has already been used.");
+        } else if (msg.includes("invalid_code")) {
+          setError("Invalid code, please check and try again.");
+        } else if (
+          msg.includes("could not find the function") ||
+          msg.includes("function public.join_couple_by_code")
+        ) {
+          setError(
+            "Connect isn't fully set up yet. Please run the join_couple_by_code SQL migration.",
+          );
+        } else {
+          setError(rpcErr.message);
+        }
+        return;
+      }
+      const match = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (!match) {
         setError("Invalid code, please check and try again.");
         return;
-      }
-      if (match.user1_id === user.id) {
-        setError("You can't use your own code.");
-        return;
-      }
-      if (match.user2_id) {
-        setError("This code has already been used.");
-        return;
-      }
-      const { error: uErr } = await supabase
-        .from("couples")
-        .update({ user2_id: user.id, connected_at: new Date().toISOString() })
-        .eq("id", match.id);
-      if (uErr) throw uErr;
-
-      // Notify the code-sharer (user1) that their partner joined.
-      try {
-        const joinerName =
-          profile?.full_name || profile?.name || "Your partner";
-        await supabase.from("notifications").insert({
-          user_id: match.user1_id,
-          type: "partner_joined",
-          title: "You're connected!",
-          message: `${joinerName} joined using your invite code`,
-          related_user_name: joinerName,
-          read: false,
-        });
-      } catch (nErr) {
-        console.warn("[invite] notification insert failed:", nErr);
       }
 
       if (typeof window !== "undefined")
